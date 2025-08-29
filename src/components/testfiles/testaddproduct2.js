@@ -1,18 +1,30 @@
-
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import axios from "../../api/fetch";
+import useNotification from "../../Hooks/useNotification";
 
 const AddProductPage2 = () => {
-  // Categories & currencies
-  const [categories, setCategories] = useState([]);
+  const navigate=useNavigate();
+  const {showNotification}=useNotification();
+  const [mainImage, setMainImage] = useState(null);
+  const [suppImages, setSuppImages] = useState([]);
+  
+  // Metadata
+  const [metadataObj, setMetadataObj] = useState({});
+  const [metaKey, setMetaKey] = useState("");
+  const [metaValue, setMetaValue] = useState("");
+  
   const [currencies, setCurrencies] = useState([]);
-
+  const [categories, setCategories] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [conditions, setConditions] = useState([]);
+  
   // All product attributes
 
   const [formData, setFormData] = useState({
   title: "",
-  cat: "",
-  currency: "",
+  category_id: null,
+  currency: null,
   status_id: 1,
   condition_id: 1,
   stock_quantity_fy: 0,
@@ -34,21 +46,16 @@ const AddProductPage2 = () => {
 });
 
 
-  // Images
-  const [mainImage, setMainImage] = useState(null);
-  const [suppImages, setSuppImages] = useState([]);
-
-  // Metadata
-  const [metadataObj, setMetadataObj] = useState({});
-  const [metaKey, setMetaKey] = useState("");
-  const [metaValue, setMetaValue] = useState("");
-
-  // Fetch categories & currencies
   useEffect(() => {
-    axios.get("/api/categories/justgetall").then(res => setCategories(res.data));
-    axios.get("/api/currencies").then(res => setCurrencies(res.data));
-  }, []);
+    axios.get("/category/justgetall").then(res => setCategories(res.data));
+    axios.get("/currency/justgetall").then(res => setCurrencies(res.data));
 
+  }, []);
+useEffect(() => {
+  axios.get("/productstatus/justgetall").then(res => setStatuses(res.data));
+  axios.get("/productcondition/justgetall").then(res => setConditions(res.data));
+}, []);
+  
   // Input change handler
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -82,19 +89,15 @@ const AddProductPage2 = () => {
     setSuppImages(prev => prev.filter((_, idx) => idx !== index));
   };
 
-  const [statuses, setStatuses] = useState([]);
-const [conditions, setConditions] = useState([]);
-useEffect(() => {
-  axios.get("/api/product_status").then(res => setStatuses(res.data));
-  axios.get("/api/product_conditions").then(res => setConditions(res.data));
-}, []);
 
   const removeMainImage = () => setMainImage(null);
+
+
 const handleSubmit = async (e) => {
   e.preventDefault();
   const data = new FormData();
 
-  // Images
+  // 1️⃣ Append Images
   if (mainImage) {
     data.append("files", mainImage);
     data.append(`image_type_${mainImage.name}`, "main");
@@ -104,25 +107,42 @@ const handleSubmit = async (e) => {
     data.append(`image_type_${file.name}`, "sup");
   });
 
-  // Metadata
+  // 2️⃣ Append Metadata
   data.append("metadata", JSON.stringify(metadataObj));
 
-  // All form fields
-Object.keys(formData).forEach(key => {
-    const value = typeof formData[key] === "boolean" ? (formData[key] ? 1 : 0) : formData[key];
+  // 3️⃣ Append All Form Fields with correct types
+  Object.keys(formData).forEach(key => {
+    let value = formData[key];
+
+    // Convert booleans properly
+    if (typeof value === "boolean") value = value;
+
+    // Ensure required fields exist
+    if (["status_id", "condition_id", "category_id"].includes(key)) {
+      if (!value) {
+        throw new Error(`${key} is required and cannot be empty`);
+      }
+    }
+
     data.append(key, value);
-});
+  });
 
   try {
-    const res = await axios.post("/api/products/createProductWithImages", data, {
+    const res = await axios.post("/product/create/createproductwithimages", data, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    alert("Product created!");
+
+    showNotification("success","تمت اضافة النتج بنجاح");
+    navigate(-1);
+
   } catch (err) {
-    console.error(err);
-    alert("Error: " + err.message);
+    showNotification(
+      "error",
+      err.response?.data?.error || err.message
+    );
   }
 };
+
 
 
   // Boolean fields for toggle switches
@@ -142,7 +162,7 @@ Object.keys(formData).forEach(key => {
   return (
     <div className="container my-5">
       <h2>Add Product</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} >
 
         {/* Title & Slug */}
         <div className="mb-3">
@@ -154,16 +174,16 @@ Object.keys(formData).forEach(key => {
         <div className="row mb-3">
           <div className="col">
             <label className="form-label">Price</label>
-            <input type="number" className="form-control" name="price" value={formData.price} onChange={handleChange} />
+            <input type="number" className="form-control" min={1}  name="price" value={formData.price} onChange={handleChange} />
           </div>
           <div className="col">
             <label className="form-label">Original Price</label>
-            <input type="number" className="form-control" name="original_price" value={formData.original_price} onChange={handleChange} />
+            <input type="number" className="form-control" min={1} name="original_price" value={formData.original_price} onChange={handleChange} />
           </div>
         </div>
         <div className="mb-3">
           <label className="form-label">Stock Quantity</label>
-          <input type="number" className="form-control" name="stock_quantity_fy" value={formData.stock_quantity_fy} onChange={handleChange} />
+          <input type="number" className="form-control" min={0} name="stock_quantity_fy" value={formData.stock_quantity_fy} onChange={handleChange} />
         </div>
 
         {/* Boolean switches */}
@@ -232,6 +252,7 @@ Object.keys(formData).forEach(key => {
   <label className="form-label">Warranty Period (months)</label>
   <input
     type="number"
+    min={0}
     className="form-control"
     name="warranty_period"
     value={formData.warranty_period}
@@ -254,7 +275,7 @@ Object.keys(formData).forEach(key => {
         {/* Category & Currency */}
         <div className="mb-3">
           <label className="form-label">Category</label>
-          <select className="form-select" name="cat" value={formData.cat} onChange={handleChange} required>
+          <select className="form-select" name="category_id" value={formData.category_id} onChange={handleChange} required>
             <option value="">Select category</option>
             {categories.map(c => <option key={c.uuid} value={c.uuid}>{c.name}</option>)}
           </select>
@@ -278,7 +299,7 @@ Object.keys(formData).forEach(key => {
   >
     <option value="">Select status</option>
     {statuses.map(s => (
-      <option key={s.id} value={s.id}>{s.name}</option>
+      <option key={s.id} value={s.id}>{s.statu}</option>
     ))}
   </select>
 </div>
@@ -295,7 +316,7 @@ Object.keys(formData).forEach(key => {
   >
     <option value="">Select condition</option>
     {conditions.map(c => (
-      <option key={c.id} value={c.id}>{c.name}</option>
+      <option key={c.id} value={c.id}>{c.condition}</option>
     ))}
   </select>
 </div>

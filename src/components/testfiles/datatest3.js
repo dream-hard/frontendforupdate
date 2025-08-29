@@ -126,11 +126,11 @@ const ProductDetailsModern = ({ product }) => {
         
 
       {/* Metadata */}
-      {product.metadata && (
-        <>
-          <h4 className="mb-3">Metadata</h4>
-           <div className="metadata-display d-flex flex-wrap gap-2">
-      {Object.entries(product.metadata).map(([key, value]) => (
+{product.metadata && (
+  <>
+    <h4 className="mb-3">Metadata</h4>
+    <div className="metadata-display d-flex flex-wrap gap-2">
+      {Object.entries(JSON.parse(product.metadata)).map(([key, value]) => (
         <div
           key={key}
           className="p-2 border rounded bg-light d-flex flex-column align-items-start"
@@ -141,8 +141,8 @@ const ProductDetailsModern = ({ product }) => {
         </div>
       ))}
     </div>
-        </>
-      )}
+  </>
+)}
 
       {/* Attributes */}
       {product.Product_attributes?.length > 0 && (

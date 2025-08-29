@@ -3,7 +3,7 @@ import axios from "axios"
 
 
 const customAxios = axios.create({
-   baseURL:`http://172.27.176.1:3001`,
+   baseURL:`http://192.168.1.106:3001`,
    withCredentials:true,
 });
 

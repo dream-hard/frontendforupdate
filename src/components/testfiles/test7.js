@@ -1,10 +1,11 @@
 import { useState,useRef,useEffect } from "react";
 import axios from '../../api/fetch'
 import Sidebar from "./testsidenav"
-import { NavLink } from "react-router-dom";
+import { data, NavLink } from "react-router-dom";
 
 import ProductDetailsModern from "./datatest3";
 import EditProductModal from "./finalupdate";
+import useNotification from "../../Hooks/useNotification";
 
 const orderOptions = [
   // UUID
@@ -102,6 +103,7 @@ const orderOptions = [
 
 
 export default function Test7() {
+const {showNotification}=useNotification();
 const [productsStatus, setProductsStatus] = useState("idle"); // idle, loading, success, error
 const [selectedItemStatus, setSelectedItemStatus] = useState("idle"); // idle, loading, success, error
 const [productsError, setProductsError] = useState(null);
@@ -132,46 +134,55 @@ const handleCloseModals = () => {
     const [users,setUsers]=useState({});
     const [categories,setCategories]=useState({});
     const [currencies,setCurrencies]=useState({});
+    const [nestcat,setNestcat]=useState([]);
 
+    const fetchsubmenucategory=async()=>{
+      try {
+        const cats=await axios.post('/category/getallnestedcategorieswithallchildren',{nothing:"nothing"});
+        setNestcat(cats.data);
+      } catch (error) {
+          console.error(error)
+      }
+    }
     const fetchcategories=async()=>{
       try {
-        const cats=await axios.get('/category/justgetall');
-        setCategories(cats);
+        const cats=await axios.post('/category/getallcategoryleafids',{});
+        console.log(cats.data)
+        setCategories(cats.data);
       } catch (error) {
-          console.error(error);
+      console.error(error)
       }
     }
     const fetchcurrencies=async()=>{
       try {
         const curs=await axios.get('/currency/justgetall');
-        setCurrencies(curs);
+
+        setCurrencies(curs.data);
       } catch (error) {
-          console.error(error);
       }
     }
     const fetchconditions=async()=>{
       try {
-        const cats=await axios.get('/condition/justgetall');
-        setCondition(cats);
+        const cats=await axios.get('/productcondition/justgetall');
+
+        setCondition(cats.data);
       } catch (error) {
-          console.error(error);
       }
     }
     
     const fetchusers=async()=>{
       try {
-        const users=await axios.get('/users/justgetall');
-        setUsers(users);
+        const users=await axios.get('/user/justgetall');
+        setUsers(users.data);
       } catch (error) {
-          console.error(error);
       }
     }
     const fetchstatus=async()=>{
       try {
-        const status=await axios.get('/status/justgetall');
-        setStatus(status);
+        const status=await axios.get('/productstatus/justgetall');
+
+        setStatus(status.data);
       } catch (error) {
-          console.error(error);
       }
     }
   
@@ -252,30 +263,27 @@ const handleDeleteProduct = async () => {
 
   try {
     // call your backend API to delete the product
-    await axios.delete(`/api/products/delete`,{id:selectedItem.uuid});
+    await axios.delete(`/product/delete/deleteProduct`,{id:selectedProduct.uuid});
 
 
     // close modal
     handleCloseModals();
   } catch (err) {
-    console.error(err);
+    showNotification("error","Failed to delete product: " + (err?.response?.data?.message || err.message))
     alert("Failed to delete product: " + (err?.response?.data?.message || err.message));
   }
 };
 
   const fetchProducts = async () => {
   setProductsStatus("loading");
-  setNewSlugs(()=>{
-    let slug=[];
-    slug.push(category);
-    return slug;
-  });
+  const latestNewSlugs = category && category !== "all" ? [category] : [];
+
 const existingSlugs = Array.isArray(body.slugs) ? body.slugs : [];
-const mergedSlugs = [...existingSlugs, ...newSlugs].filter((v, i, a) => v && a.indexOf(v) === i);
+const mergedSlugs = [...existingSlugs, ...latestNewSlugs].filter((v, i, a) => v && a.indexOf(v) === i);
 
 const { slugs, ...bodyWithoutSlugs } = body;
   try {
-    const res = await axios.post("/api/products/filter", {
+    const res = await axios.post("/product/filterproducts", {
       page,
       limit,
       orderby,
@@ -287,8 +295,9 @@ const { slugs, ...bodyWithoutSlugs } = body;
     setTotalPages(res.data.totalPages);
     setItemsnumber(res.data.total);
     setProductsStatus("success");
+    showNotification("success","products were found")
   } catch (err) {
-    console.error(err);
+    showNotification("error","products  were not found under this category or filters")
     setProductsError(err.message || "Failed to fetch products");
     setProductsStatus("error");
   }
@@ -297,11 +306,12 @@ const { slugs, ...bodyWithoutSlugs } = body;
 const fetchSelectedProduct = async (id) => {
   setSelectedItemStatus("loading");
   try {
-    const res = await axios.post(`/api/products/`,{id});
+    const res = await axios.post(`/product/justgetalltheproduct`,{id:id});
     setSelectedItem(res.data.product);
     setSelectedItemStatus("success");
   } catch (err) {
-    console.error(err);
+    showNotification("error",(err.message || "Failed to fetch product"))
+    
     setSelectedItemError(err.message || "Failed to fetch product");
     setSelectedItemStatus("error");
   }
@@ -416,6 +426,7 @@ const fetchSelectedProduct = async (id) => {
   };
 
   useEffect(()=>{
+    fetchsubmenucategory();
     fetchProducts();
     fetchcategories();
     fetchconditions();
@@ -513,7 +524,7 @@ const fetchSelectedProduct = async (id) => {
     </form>
     </div>
     <div className="m-0 p-0 container-fluid d-flex gap-3" style={{}}>
-      <div className={`p-0 m-0 ${isOpen? "col-4 col-sm-4 col-md-2 col-lg-2": "d-none"}`}><Sidebar onSelect={setCategory} isOpen={isOpen} toggleSidebar={toggleSidebar}></Sidebar></div>
+      <div className={`p-0 m-0 ${isOpen? "col-4 col-sm-4 col-md-2 col-lg-2": "d-none"}`}><Sidebar nestcats={nestcat}  onSelect={setCategory} isOpen={isOpen} toggleSidebar={toggleSidebar}></Sidebar></div>
     <div className="m-0 p-0 responsive" style={{overflow:"auto"}}>
 <h2 className="mb-4 d-flex align-items-center gap-2">
   <button className="btn btn-sm btn-primary" disabled>
@@ -704,8 +715,6 @@ const fetchSelectedProduct = async (id) => {
           {/* Idle / Loading / Error states */}
     
   <div>
-
-
       <ProductDetailsModern product={selectedItem}></ProductDetailsModern>
   </div>
 
@@ -723,7 +732,7 @@ const fetchSelectedProduct = async (id) => {
         <button type="button" className="btn-close" onClick={handleCloseModals}></button>
       </div>
       <div className="modal-body">
-        <EditProductModal product={selectedItem} onClose={handleCloseModals} Statuses={status} Categories={categories} Currencies={currencies} Users={users}></EditProductModal>
+        <EditProductModal product={selectedItem} onClose={handleCloseModals} Statuses={status} Categories={categories} Currencies={currencies} Users={users} Conditions={condition}></EditProductModal>
       </div>
       <div className="modal-footer">
         <button className="btn btn-secondary" onClick={handleCloseModals}>Cancel</button>
@@ -742,7 +751,7 @@ const fetchSelectedProduct = async (id) => {
         <button type="button" className="btn-close" onClick={handleCloseModals}></button>
       </div>
       <div className="modal-body">
-        {selectedProduct && <p>Are you sure you want to delete <strong>{selectedProduct.title}</strong>?</p>}
+        {selectedProduct && <p>هل انت متأكد انك تريد حذف  <strong>{selectedProduct.title} (نهائيا) </strong>؟</p>}
       </div>
       <div className="modal-footer">
         <button className="btn btn-secondary" onClick={handleCloseModals}>Cancel</button>

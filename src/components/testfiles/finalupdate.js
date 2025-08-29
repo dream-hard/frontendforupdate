@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../api/fetch";
+import useNotification from "../../Hooks/useNotification";
 
 /**
  * EditProductModal
@@ -9,20 +10,22 @@ import axios from "../../api/fetch";
  *  - onUpdated: (updatedProduct) => void
  *  - Categories, Currencies, Statuses, Conditions: optional initial lists
  */
-const EditProductModal = ({ product, onClose, onUpdated, Categories = [], Currencies = [], Statuses = [], Conditions = [],Users=[] }) => {
-  const [categories, setCategories] = useState(Categories || []);
-  const [currencies, setCurrencies] = useState(Currencies || []);
-  const [statuses, setStatuses] = useState(Statuses || []);
-  const [conditions, setConditions] = useState(Conditions || []);
+const EditProductModal = ({ product, onClose, onUpdated, Categories , Currencies = [], Statuses = [], Conditions = [],Users=[] }) => {
+  const [categories, setCategories] = useState([]);
+  const [currencies, setCurrencies] = useState( []);
+  const [statuses, setStatuses] = useState([]);
+  const [conditions, setConditions] = useState( []);
+  const [users,setUsers]=useState([])
+  const { showNotification}=useNotification();
 
   const [formData, setFormData] = useState({
     id: "",
     title: "",
-    cat: "",
-    currency: "",
-    status_id: 1,
-    condition_id: 1,
-    user_id:"",
+    cat:null,
+    currency: null,
+    status_id: null,
+    condition_id: null,
+    user_id:null,
     stock_quantity_fy: 0,
     price: 0,
     original_price: 0,
@@ -59,11 +62,12 @@ const EditProductModal = ({ product, onClose, onUpdated, Categories = [], Curren
 
   // fetch option lists (overrides initial props when available)
   useEffect(() => {
-    axios.get("/api/categories/justgetall").then(r => setCategories(r.data)).catch(() => {});
-    axios.get("/api/currencies").then(r => setCurrencies(r.data)).catch(() => {});
-    axios.get("/api/product_status").then(r => setStatuses(r.data)).catch(() => {});
-    axios.get("/api/product_conditions").then(r => setConditions(r.data)).catch(() => {});
-  }, []);
+     setCategories(Categories)
+     setCurrencies(Currencies);
+     setStatuses(Statuses);
+     setConditions(Conditions);
+    setUsers(Users)
+  }, [Categories,Currencies,Statuses,Conditions,Users]);
 
   // populate form from product
 useEffect(() => {
@@ -72,11 +76,11 @@ useEffect(() => {
   setFormData({
     id: product.uuid || "",
     title: product.title || "",
-    cat: product.category_id ? String(product.category_id) : "",
-    currency: product.currency_id ? String(product.currency_id) : "",
-    user_id: product.user_id ? String(product.user_id) : "",
-    status_id: product.status_id ? String(product.status_id) : "1",
-    condition_id: product.condition_id ? String(product.condition_id) : "1",
+    cat: product.category_id ? String(product.category_id) : null,
+    currency: product.currency_id ? String(product.currency_id) : null,
+    user_id: product.user_id ? String(product.user_id) : null,
+    status_id: product.status_id ? String(product.status_id) : null,
+    condition_id: product.condition_id ? String(product.condition_id) : null,
     stock_quantity_fy: product.stock_quantity_fy || 0,
     price: product.price || 0,
     original_price: product.original_price || 0,
@@ -101,6 +105,7 @@ useEffect(() => {
   setSuppImages([]);
   setDeletedFilenames([]);
 
+
   // attributes mapping
   const mappedAttrs = (Array.isArray(product.Product_attributes) ? product.Product_attributes : []).map(pa => {
     const key = pa?.Attribute_option?.Attribute_type?.name || "Attribute";
@@ -110,7 +115,12 @@ useEffect(() => {
   setAttributes(mappedAttrs);
   setDeleteAttributes([]);
 
-  setMetadataObj(product.metadata || {});
+try {
+  setMetadataObj(product.metadata ? JSON.parse(product.metadata) : {});
+} catch (e) {
+  console.error("Invalid metadata JSON", e);
+  setMetadataObj({});
+}
 }, [product]);
 
 
@@ -211,6 +221,7 @@ useEffect(() => {
     data.append("cat", formData.cat || "");
     data.append("status", statusVal);
     data.append("condition", conditionVal);
+    data.append('user',formData.user_id);
     data.append("currency", formData.currency || "");
     data.append("title", formData.title || "");
     data.append("quantity", quantityVal);
@@ -219,21 +230,20 @@ useEffect(() => {
 
     // description & warranty period
     data.append("description", formData.description || "");
-    data.append("warranty_peroid", warrantyPeriodVal); // backend typo
-    data.append("warranty_period", warrantyPeriodVal);
+    data.append("warranty_peroid", warrantyPeriodVal);
 
-    data.append("active_name", formData.isactive_name ? 1 : 0);
-    data.append("active_number", formData.isactive_phonenumber ? 1 : 0);
-    data.append("active_prcie", formData.isactive_price ? 1 : 0); // backend typo
-    data.append("active_price", formData.isactive_price ? 1 : 0);
-    data.append("available", formData.isAvailable ? 1 : 0);
-    data.append("featured", formData.featured ? 1 : 0);
-    data.append("upcoming", formData.upcoming ? 1 : 0);
-    data.append("negotiable", formData.negotiable ? 1 : 0);
-    data.append("warranty", formData.warranty ? 1 : 0);
-    data.append("latest", formData.latest ? 1 : 0);
-    data.append("discount", formData.discount ? 1 : 0);
-    data.append("softdelete", formData.softdelete ? 1 : 0);
+    data.append("active_name", formData.isactive_name ? true : false);
+    data.append("active_number", formData.isactive_phonenumber ? true : false);
+    data.append("active_prcie", formData.isactive_price ? true : false); // backend typo
+    data.append("active_price", formData.isactive_price ? true: false);
+    data.append("available", formData.isAvailable ? true: false);
+    data.append("featured", formData.featured ? true: false);
+    data.append("upcoming", formData.upcoming ? true: false);
+    data.append("negotiable", formData.negotiable ? true : false);
+    data.append("warranty", formData.warranty ? true: false);
+    data.append("latest", formData.latest ? true: false);
+    data.append("discount", formData.discount ? true : false);
+    data.append("softdelete", formData.softdelete ? true : false);
 
     // metadata
     data.append("metadata", JSON.stringify(metadataObj || {}));
@@ -259,15 +269,17 @@ useEffect(() => {
     data.append("delete_filenames", JSON.stringify(deleted));
 
     try {
-      const res = await axios.post("/api/products/updateProductWithImages", data, {
+      console.log(formData)
+      const res = await axios.patch("/product/update/updateproductwithimages", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
+      showNotification('success',"لقد تم تحديث المنتج بنجاح")
       onUpdated && onUpdated(res.data.product || {});
       onClose && onClose();
+      
+      
     } catch (err) {
-      console.error(err);
-      alert("Update failed: " + (err?.response?.data?.message || err.message));
+      showNotification("error",(err?.response?.data?.message || err.message));
     }
   };
 
@@ -381,9 +393,9 @@ useEffect(() => {
                     const m = existingImages.find(img => img.image_type === "main");
                     return (
                       <div className="card mb-2" style={{ width: "150px" }}>
-                        <img src={`/uploads/${m.filename}`} className="card-img-top" alt="Main" />
+                        <img src={`${m.filename}`} className="card-img-top" alt="Main" />
                         <div className="card-body p-2 text-center">
-                          <button type="button" className="btn btn-sm btn-danger" onClick={() => removeExistingImage(m.filename)}>Delete</button>
+                          <button type="button" className="btn btn-sm btn-danger" onClick={() => removeExistingImage(m.disk_filename)}>Delete</button>
                         </div>
                       </div>
                     );
@@ -407,8 +419,8 @@ useEffect(() => {
 
                   {existingImages.filter(img => img.image_type !== "main").map((img, idx) => (
                     <div key={idx} className="card" style={{ width: "120px", position: "relative" }}>
-                      <img src={`/uploads/${img.filename}`} className="card-img-top" alt={`Supp ${idx}`} />
-                      <button type="button" className="btn btn-sm btn-danger" style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "50%", padding: "0.25rem 0.5rem" }} onClick={() => removeExistingImage(img.filename)}>&times;</button>
+                      <img src={`${img.filename}`} className="card-img-top" alt={`Supp ${idx}`} />
+                      <button type="button" className="btn btn-sm btn-danger" style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "50%", padding: "0.25rem 0.5rem" }} onClick={() => removeExistingImage(img.disk_filename)}>&times;</button>
                     </div>
                   ))}
                 </div>
@@ -437,39 +449,58 @@ useEffect(() => {
                 <label className="form-label">Category</label>
                 <select className="form-select" name="cat" value={formData.cat} onChange={handleChange} required>
                   <option value="">Select category</option>
-                  {categories.map(c => <option key={c.uuid || c.id} value={c.uuid || c.id}>{c.name}</option>)}
-                </select>
+  {categories?.map(c => (
+    <option key={c.uuid} value={c.uuid}>
+      {c.name}
+    </option>
+  ))}
+             </select>
               </div>
 
               <div className="mb-3">
                 <label className="form-label">Currency</label>
                 <select className="form-select" name="currency" value={formData.currency} onChange={handleChange} required>
                   <option value="">Select currency</option>
-                  {currencies.map(c => <option key={c.uuid || c.currency_iso} value={c.currency_iso || c.uuid}>{c.currency_iso || (c.symbol || c.name)}</option>)}
-                </select>
+{currencies?.map(c => (
+  <option key={c.uuid || c.currency_iso} value={c.currency_iso || c.uuid}>
+    {c.currency_iso || c.symbol || c.name}
+  </option>
+))}
+              </select>
               </div>
 
               <div className="mb-3">
                 <label className="form-label">Status</label>
                 <select className="form-select" name="status_id" value={formData.status_id} onChange={handleChange} required>
                   <option value="">Select status</option>
-                  {statuses.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
+{statuses?.map(s => (
+  <option key={s.id} value={s.id}>
+    {s.statu}
+  </option>
+))}
+           </select>
               </div>
 
               <div className="mb-3">
                 <label className="form-label">Condition</label>
                 <select className="form-select" name="condition_id" value={formData.condition_id} onChange={handleChange} required>
                   <option value="">Select condition</option>
-                  {conditions.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+{conditions?.map(c => (
+  <option key={c.id} value={c.id}>
+    {c.condition}
+  </option>
+))}
+          </select>
               </div>
                 <div className="mb-3">
                 <label className="form-label">Seller</label>
                 <select className="form-select" name="user_id" value={formData.user_id} onChange={handleChange} required>
                   <option value="">Select condition</option>
-                  {Users.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+{users?.map(u => (
+  <option key={u.uuid} value={u.uuid}>
+    {u.name}
+  </option>
+))}         </select>
               </div>
 
               <button type="submit" className="btn btn-primary">Update Product</button>

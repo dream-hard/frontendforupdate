@@ -9,6 +9,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
   const linkss = [
     {name:"images upload",link:"upload"},{name:"table somthing",link:"table"},
     {name:"main",link:"mainpage"},
+    {name:'PRODUCTS',link:"test7",submenu:[{name:"Add New Product",link:"add2"}]},
   {
     name: 'Products',
     link: 'products',
@@ -112,7 +113,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
   </ul>
 </li>
   </NavLink> */}
-  <NavLink to='himan'className={({isActive})=>`nav-link text dark ${isActive? 'active-link':""}`}>
+  {/* <NavLink to='himan'className={({isActive})=>`nav-link text dark ${isActive? 'active-link':""}`}>
     <li className='sidebar-item '>himan</li>
   </NavLink>
     <NavLink to='suppliers'className={({isActive})=>`nav-link text dark ${isActive? 'active-link':""}`}>
@@ -161,7 +162,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
 
       </>
     )
-  })}
+  })} */}
 
   {renderLinks(linkss)}
 

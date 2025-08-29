@@ -12,7 +12,7 @@ export default function AuthFlip() {
 
   // Separate states for login and signup form data
   const [loginData, setLoginData] = useState({ email: '', password: '',phoneNumber:'' });
-  const [signupData, setSignupData] = useState({ email: '', password: '', confirmPassword: '' });
+  const [signupData, setSignupData] = useState({ email: '', password: '', confirmPassword: '',bio:"",username:"",name:"",phoneNumber:"" });
 
   // Separate validation states
   const [loginValidated, setLoginValidated] = useState(false);
@@ -97,12 +97,14 @@ export default function AuthFlip() {
     setSignupValidated(true);
 
     if (
-      !signupData.email.trim() ||
+      
       !signupData.password.trim() ||
       signupData.password.length < 6 ||
-      signupData.password !== signupData.confirmPassword
+      signupData.password !== signupData.confirmPassword||
+      !signupData.name.trim()||
+      !signupData.phoneNumber.trim()
     )   {
-      showNotification("error","Try TO reEnter Your Information"); 
+      showNotification("error","Try To ReEnter Your Information"); 
  return;}
 
     if (controllerRef.current) {
@@ -126,7 +128,7 @@ export default function AuthFlip() {
           showNotification("warning","Request canceled");
 
         } else {
-          showNotification("danger",error)
+          showNotification("error",error)
         }
         return;
       }
@@ -135,12 +137,12 @@ export default function AuthFlip() {
       
       
       
-      alert('Signup successful!');
+      showNotification("success","لقد سجلت بنجاح");
       setSignupValidated(false);
-      setSignupData({ email: '', password: '', confirmPassword: '' });
+      setSignupData({ email: '', password: '', confirmPassword: '',bio:"",username:"",name:"",phoneNumber:"" });
       setShowSignupPassword(false);
       setShowConfirmPassword(false);
-    return navigate('/login',{replace});
+    return navigate('/log',{replace});
   };
 
   // Toggle between login and signup
@@ -150,7 +152,7 @@ export default function AuthFlip() {
     setLoginValidated(false);
     setSignupValidated(false);
     setLoginData({ email: '', password: '' });
-    setSignupData({ email: '', password: '', confirmPassword: '' });
+    setSignupData({ email: '', password: '', confirmPassword: '',bio:"",username:"",name:"",phoneNumber:"" });
     setShowLoginPassword(false);
     setShowSignupPassword(false);
     setShowConfirmPassword(false);
@@ -319,8 +321,74 @@ export default function AuthFlip() {
             className={signupValidated ? 'was-validated' : ''}
             onSubmit={handleSignupSubmit}
           >
+<div className="mb-3">
+  <label htmlFor="signupName" className="form-label">Full Name</label>
+  <input
+    type="text"
+    id="signupName"
+    name="name"
+    value={signupData.name}
+    onChange={handleSignupChange}
+    required
+    className={`form-control ${
+      signupValidated && signupData.name.trim() === '' ? 'is-invalid' : ''
+    }`}
+  />
+  {signupValidated && signupData.name.trim() === '' && (
+    <div className="invalid-feedback">Full name is required.</div>
+  )}
+</div>
+{/* Username (Optional) */}
+<div className="mb-3">
+  <label htmlFor="signupUsername" className="form-label"> <strong>(اختباري)</strong> Username </label>
+  <input
+    type="text"
+    id="signupUsername"
+    name="username"
+    value={signupData.username}
+    onChange={handleSignupChange}
+    className="form-control"
+  />
+</div>
+
+
+             <div className=''>
+              <label htmlFor="phonenumber" className='form-label'>Phone Number (Syria):</label>
+              <div className='input-group'>
+
+              <input
+                type="tel"
+                id="phonenumber"
+                name="phoneNumber"
+                value={signupData.phoneNumber}
+                onKeyDown={(e) => {
+                  const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab'];
+                  if (!/^\d$/.test(e.key) && !allowedKeys.includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
+                onChange={ handleSignupChange}
+                placeholder="09XXXXXXXX"
+                className={`form-control ${
+                  signupValidated && ! /^09\d{8}$/.test(signupData.phoneNumber)
+                 ?    'is-invalid'
+                    : ''
+                    }`}  
+                minLength={10}
+                maxLength={10}
+                />
+                 <span
+                   className="input-group-text "
+                   style={{ cursor: 'pointer', userSelect: 'none' }}
+                  >
+                  963+   <img className='ms-2' src="//upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Emojione_1F1F8-1F1FE_New.svg/40px-Emojione_1F1F8-1F1FE_New.svg.png"  width="32" height="32"  ></img> 
+                 </span>
+              {signupValidated && !/^09\d{8}$/.test(signupData.phoneNumber) && <small className="text-danger">Please enter a valid Phone number.</small>}
+              </div>
+            </div>
+           
             <div className="mb-3">
-              <label htmlFor="signupEmail" className="form-label">Email</label>
+              <label htmlFor="signupEmail" className="form-label"> <strong>(اختباري)</strong>  Email </label>
               <input
               dir='ltr'
                 type="email"
@@ -341,6 +409,20 @@ export default function AuthFlip() {
     <div className="invalid-feedback">Please enter a valid email address.</div>
   )}
             </div>
+
+
+<div className="mb-3">
+  <label htmlFor="signupBio" className="form-label"> <strong>(اختباري)</strong> Bio </label>
+  <textarea
+    id="signupBio"
+    name="bio"
+    value={signupData.bio}
+    onChange={handleSignupChange}
+    rows="3"
+    className="form-control"
+    placeholder="Tell us something about yourself..."
+  />
+</div>
 
             <div className="mb-3">
               <label htmlFor="signupPassword" className="form-label">Password</label>
