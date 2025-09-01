@@ -1,25 +1,21 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import './card.css'
 import { Link } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
-      const hasDiscount =(product.original_price && product.price < product.original_price);
+      const hasDiscount =product.discount;
     const discountPercent = hasDiscount
     ? Math.round(
         ((product.original_price - product.price) / product.original_price) * 100
       )
     : 0;
 
+    useEffect(()=>{
+    },[])
   return (
     <div className="card h-100 shadow-sm border-0 rounded-3 card-hover position-relative overflow-hidden " style={{justifyContent:"end"}}>
-      {/* <div className="header-hover px-3 py-2 d-flex justify-content-between align-items-center rounded-top-4 text-white">
-        <span className="fw-semibold">{product.badge}</span>
-        </div> */}
-      {/* <div className="header-hover position-absolute top-0 start-0 m-2">
-  <span className="badge bg-primary rounded-pill px-2">{product.badge}</span>
-  </div> */}
-{/* <span className="badge bg-primary text-white position-absolute top-0 start-0 m-2">{product.badge}</span> */}
+     
   <div className="   top-0  " style={{position:"absolute",left:0}}>
   {hasDiscount && (
    <span className="badge bg-danger  top-0   m-2">
@@ -29,10 +25,10 @@ const ProductCard = ({ product }) => {
 
 </div>
 <Link
-  to={`/category/${product.category?.slug || product.category_id}`}
+  to={`/category/${product.Category.slug }`}
   className="text-muted small mb-0 text-decoration-none d-block px-2 mt-2 category-link"
 >
-  {product.category?.name || "الفئة"}
+  {product.Category?.display_name || "الفئة"}
 </Link>
 
 
@@ -41,12 +37,13 @@ const ProductCard = ({ product }) => {
 
 
       <div className="p-md-2  pt-md-0 pb-md-0  text-center bg-white " style={{backgroundColor:"red"}}>
-        <img
-          src={product.image}
-          alt={product.title}
-          className="img-fluid"
-          style={{ maxHeight: "200px", objectFit: "contain" }}
-        />
+  <img
+  src={product.Product_images?.[0]?.filename || "/placeholder.png"}
+  alt={product.title}
+  className="img-fluid"
+  style={{ maxHeight: "200px", objectFit: "contain" }}
+/>
+
       </div>
 
       <div className="card-body text-end   " style={{display:"flex",flexFlow:"column nowrap",justifyContent:"end",backgroundColor:""}}>
@@ -54,7 +51,7 @@ const ProductCard = ({ product }) => {
        
         <div className="d-flex justify-content-between align-items-center  " style={{backgroundColor:"",gap:"3px"}}>
                     <div className="text-start">
-            {hasDiscount ? (
+            {(hasDiscount ) ? (
               <>
                 <span className="text-danger text-decoration-line-through fs-6">
                   ${product.original_price}
@@ -65,7 +62,7 @@ const ProductCard = ({ product }) => {
               </>
             ) : (
               <span className="text-black fw-bold fs-5">
-                ${product.price}
+                ${product.original_price}
               </span>
             )}
    

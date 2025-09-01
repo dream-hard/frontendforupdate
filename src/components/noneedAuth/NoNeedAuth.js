@@ -1,21 +1,20 @@
-import { Navigate,useLocation ,Outlet} from "react-router-dom";
-
+import { Navigate, useLocation, Outlet } from "react-router-dom";
+import useAuth from "../../Hooks/useAuth";
 import { useEffect } from "react";
 
+function NoNeedAuth() {
+  const { auth, loading } = useAuth(); // 👈 get loading state
+  const location = useLocation();
 
-import useAuth from "../../Hooks/useAuth";
+  if (loading) {
+    return <div>Loading...</div>; // 👈 show spinner/skeleton instead of redirecting
+  }
 
-function NoNeedAuth(){
-    const {auth}=useAuth();
-    const Location=useLocation();
-
-        
-    return(
-        
-        !auth?.authtoken
-        ?<Outlet></Outlet>
-        :<Navigate to='/app'  state={{from:Location}} replace></Navigate>
-    )
+  return auth ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/" state={{ from: location }} replace />
+  );
 }
 
-export default NoNeedAuth
+export default NoNeedAuth;

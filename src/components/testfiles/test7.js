@@ -195,7 +195,7 @@ const handleCloseModals = () => {
     const [category,setCategory]=useState('all');
     const [newSlugs,setNewSlugs]=useState([]);
     const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(10);
+    const [limit, setLimit] = useState(15);
     const [itemsnumber,setItemsnumber]=useState(0);
     const [orderby, setOrderby] = useState("created-desc");
     const [filters, setFilters] = useState(initialFilters);
@@ -263,14 +263,14 @@ const handleDeleteProduct = async () => {
 
   try {
     // call your backend API to delete the product
-    await axios.delete(`/product/delete/deleteProduct`,{id:selectedProduct.uuid});
-
-
+    await axios.delete(`/product/delete/deleteProduct?id=${selectedProduct.uuid}`);
+    showNotification("success","تم حذف المنتج بنجاح")
+    fetchProducts();
     // close modal
     handleCloseModals();
   } catch (err) {
-    showNotification("error","Failed to delete product: " + (err?.response?.data?.message || err.message))
-    alert("Failed to delete product: " + (err?.response?.data?.message || err.message));
+    showNotification("error","فشل المحاولة من حذف المنتج " + (err?.response?.data?.message || err.message))
+    
   }
 };
 
@@ -284,9 +284,9 @@ const mergedSlugs = [...existingSlugs, ...latestNewSlugs].filter((v, i, a) => v 
 const { slugs, ...bodyWithoutSlugs } = body;
   try {
     const res = await axios.post("/product/filterproducts", {
-      page,
-      limit,
-      orderby,
+      page:page,
+      limit:limit,
+      orderby:orderby,
       ...bodyWithoutSlugs,
       slugs:mergedSlugs,
     });
@@ -295,7 +295,7 @@ const { slugs, ...bodyWithoutSlugs } = body;
     setTotalPages(res.data.totalPages);
     setItemsnumber(res.data.total);
     setProductsStatus("success");
-    showNotification("success","products were found")
+    showNotification("success","تم ايجاد المنتجات بنجاح")
   } catch (err) {
     showNotification("error","products  were not found under this category or filters")
     setProductsError(err.message || "Failed to fetch products");
@@ -308,6 +308,7 @@ const fetchSelectedProduct = async (id) => {
   try {
     const res = await axios.post(`/product/justgetalltheproduct`,{id:id});
     setSelectedItem(res.data.product);
+    console.log(res.data.product)
     setSelectedItemStatus("success");
   } catch (err) {
     showNotification("error",(err.message || "Failed to fetch product"))
@@ -661,7 +662,7 @@ const fetchSelectedProduct = async (id) => {
             <button className="btn btn-sm btn-secondary" onClick={() => openDrawer(item.uuid)}>View</button>
           </div>
         </td>
-        <td className="text-primary" style={{ cursor: "pointer" }} onClick={() => openDrawer(item)}>
+        <td className="text-primary" style={{ cursor: "pointer" }} onClick={() => openDrawer(item.uuid)}>
           {item.title}
         </td>
         <td>{item.status_id}</td>
@@ -732,7 +733,7 @@ const fetchSelectedProduct = async (id) => {
         <button type="button" className="btn-close" onClick={handleCloseModals}></button>
       </div>
       <div className="modal-body">
-        <EditProductModal product={selectedItem} onClose={handleCloseModals} Statuses={status} Categories={categories} Currencies={currencies} Users={users} Conditions={condition}></EditProductModal>
+        <EditProductModal product={selectedItem} onClose={handleCloseModals} onUpdated={fetchProducts} Statuses={status} Categories={categories} Currencies={currencies} Users={users} Conditions={condition}></EditProductModal>
       </div>
       <div className="modal-footer">
         <button className="btn btn-secondary" onClick={handleCloseModals}>Cancel</button>

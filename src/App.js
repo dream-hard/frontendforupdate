@@ -29,15 +29,11 @@ import Test7 from './components/testfiles/test7.js';
 import AddProductPage from './components/testfiles/testaddproduct.js';
 import ProductForm from './components/testfiles/testaddproduct2.js';
 import AddProductPage2 from './components/testfiles/testaddproduct2.js';
+import Alreadylogin from './components/alreadylogin/alreadylogin.js';
 
 
 
- const headers = ['name', 'category', 'price', 'stock', 'sold'];
 
-  const data = [
-    { name: 'Laptop', category: 'Electronics', price: 1200, stock: 5, sold: 15 },
-    { name: 'Headphones', category: 'Accessories', price: 80, stock: 2, sold: 45 },
-  ];
 
 function App() {
   return (
@@ -49,6 +45,8 @@ function App() {
             
             <Route path='/test' element={<CartPagetest></CartPagetest>}/>
             <Route path='/test2' element={<ProductDetail></ProductDetail>}></Route>
+            <Route path="/product/:slug" element={<ProductDetail />} />
+            <Route path="/category/*" element={<ProductList/>}/>
             <Route path='/profile' element={<UserProfile></UserProfile>}>
               <Route path='*' element={<Notfound></Notfound>}></Route>
               <Route index element={<Navigate to="info" replace />} />
@@ -67,7 +65,9 @@ function App() {
             <Route path='cart' element={<CartPage/>}></Route>
             <Route path='view' element={<ProductList></ProductList>}></Route>
             <Route path='/*' element={<Notfound></Notfound>}/>
-            <Route path='/log' element={<div className='container-fluid d-flex justify-content-center'  style={{minHeight:"100vh",alignItems:"center"}}><Auth></Auth></div>}></Route>
+            <Route element={<Alreadylogin/>}>
+            </Route>
+              <Route path='/log' element={<div className='container-fluid d-flex justify-content-center'  style={{minHeight:"100vh",alignItems:"center"}}><Auth></Auth></div>}></Route>
         </Route>
 
         <Route path='/dashboard' element={<NoNeedAuth></NoNeedAuth>}>
@@ -76,9 +76,7 @@ function App() {
             {/*this where we add the outlet or out look and the route that will apper inside it  */}
             <Route path='himan' element={<div style={{backgroundColor:"red", overflow:"auto",width:"100%"}}>sdfdsafdsaf</div>}></Route>
             <Route path='orders'/>
-            <Route path='table' element={  <div className='container-fluid p-0 m-0'>
-              <TableGenerator headers={headers} data={data} />
-            </div>}/>
+
             <Route path='upload' element={<CloudinaryUpload/>}></Route>
             <Route path='*' element={<Notfound/>}/>
             <Route path='mainpage' element={<MainPage></MainPage>}>

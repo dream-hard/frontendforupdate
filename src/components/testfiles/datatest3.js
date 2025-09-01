@@ -202,7 +202,7 @@ const ProductDetailsModern = ({ product }) => {
         style={{ maxWidth: "400px" }}
       >
         <img
-          src={`/uploads/${product.Product_images?.find(img => img.image_type === "main")?.filename || ""}`}
+          src={`${product.Product_images?.find(img => img.image_type === "main")?.filename || ""}`}
           alt="Main Product"
           className="img-fluid rounded"
         />
@@ -226,10 +226,10 @@ const ProductDetailsModern = ({ product }) => {
               <div
                 key={idx}
                 className="border rounded shadow-sm p-2"
-                style={{ width: "300px", height: "200px", overflow: "hidden" }}
+                style={{ width: "300px", minHeight: "max-contant", overflow: "hidden" }}
               >
                 <img
-                  src={`/uploads/${img.filename}`}
+                  src={`${img.filename}`}
                   alt={`Product ${idx}`}
                   className="img-fluid rounded"
                 />

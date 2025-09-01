@@ -57,13 +57,39 @@ useEffect(() => {
 }, []);
   
   // Input change handler
+  // const handleChange = (e) => {
+  //   const { name, value, type, checked } = e.target;
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     [name]: type === "checkbox" ? checked : value
+  //   }));
+  // };
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
-  };
+  const { name, value, type, checked } = e.target;
+
+  if (type === "checkbox") {
+    setFormData(prev => ({ ...prev, [name]: checked }));
+    return;
+  }
+
+  // Convert price/original_price to float
+  if (["price", "original_price"].includes(name)) {
+    const floatVal = value === "" ? "" : parseFloat(value);
+    setFormData(prev => ({ ...prev, [name]: floatVal }));
+    return;
+  }
+
+  // Convert integers
+  if (["stock_quantity_fy", "warranty_period"].includes(name)) {
+    const intVal = value === "" ? "" : parseInt(value, 10);
+    setFormData(prev => ({ ...prev, [name]: intVal }));
+    return;
+  }
+
+  // Default: string
+  setFormData(prev => ({ ...prev, [name]: value }));
+};
+
 
   // Metadata handlers
   const handleAddMetadata = () => {
@@ -174,11 +200,11 @@ const handleSubmit = async (e) => {
         <div className="row mb-3">
           <div className="col">
             <label className="form-label">Price</label>
-            <input type="number" className="form-control" min={1}  name="price" value={formData.price} onChange={handleChange} />
+            <input type="number" className="form-control" min={1}  name="price" step="0.01"    value={formData.price} onChange={handleChange} />
           </div>
           <div className="col">
             <label className="form-label">Original Price</label>
-            <input type="number" className="form-control" min={1} name="original_price" value={formData.original_price} onChange={handleChange} />
+            <input type="number" className="form-control" min={1} name="original_price" step="0.01"    value={formData.original_price} onChange={handleChange} />
           </div>
         </div>
         <div className="mb-3">

@@ -1,89 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import RightOptions from '../rightoptions/rightoptions';
 import ProductCard from '../main/card/card';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import useNotification from '../../Hooks/useNotification';
+import axios from '../../api/fetch'
 
 
-const productss = [
-  {
-    badge: "الأكثر مبيعًا",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlndpwDalSNF8TzBG6T7kGv73l0IOReNJpKw&s",
-    title: "قرص تخزين محمول",
-    description: "سرعة عالية بفضل منفذ USB-C وتخزين 1 تيرابايت.",
-    specs: ["1 تيرابايت", "USB-C", "محمول"],
-    price: 89.99,
-  },
-  {
-    badge: "جديد",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlndpwDalSNF8TzBG6T7kGv73l0IOReNJpKw&s",
-    title: "شاحن سريع",
-    description: "دعم الشحن السريع للهواتف والأجهزة اللوحية.",
-    specs: ["18W", "USB-A", "خفيف الوزن"],
-    price: 19.99,
-  },
-  {
-    badge: "مميز",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlndpwDalSNF8TzBG6T7kGv73l0IOReNJpKw&s",
-    title: "سماعة بلوتوث",
-    description: "جودة صوت عالية واتصال مستقر بالبلوتوث.",
-    specs: ["BT 5.0", "8 ساعات", "ميكروفون مدمج"],
-    price: 29.99,
-  },
-  
-  {
-    badge: "مميز",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlndpwDalSNF8TzBG6T7kGv73l0IOReNJpKw&s",
-    title: "سماعة بلوتوث",
-    description: "جودة صوت عالية واتصال مستقر بالبلوتوث.",
-    specs: ["BT 5.0", "8 ساعات", "ميكروفون مدمج"],
-    price: 29.99,
-  },
-  {
-    badge: "مميز",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlndpwDalSNF8TzBG6T7kGv73l0IOReNJpKw&s",
-    title: "سماعة بلوتوث",
-    description: "جودة صوت عالية واتصال مستقر بالبلوتوث.",
-    specs: ["BT 5.0", "8 ساعات", "ميكروفون مدمج"],
-    price: 29.99,
-  },
-  {
-    badge: "مميز",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlndpwDalSNF8TzBG6T7kGv73l0IOReNJpKw&s",
-    title: "سماعة gog oggoog man  شسيب ",
-    description: "جودة صوت عالية واتصال مستقر بالبلوتوث.",
-    specs: ["BT 5.0", "8 ساعات", "ميكروفون مدمج"],
-    price: 29.99,
-  },
-  {
-    badge: "مميز",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlndpwDalSNF8TzBG6T7kGv73l0IOReNJpKw&s",
-    title: "سماعة بلوتوث",
-    description: "جودة صوت عالية واتصال مستقر بالبلوتوث.",
-    specs: ["BT 5.0", "8 ساعات", "ميكروفون مدمج"],
-    price: 29.99,
-  },
-  {
-    badge: "مميز",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlndpwDalSNF8TzBG6T7kGv73l0IOReNJpKw&s",
-    title: "سماعة بلوتوث",
-    description: "جودة صوت عالية واتصال مستقر بالبلوتوث.",
-    specs: ["BT 5.0", "8 ساعات", "ميكروفون مدمج"],
-    price: 29.99,
-  },
-  {
-    badge: "مميز",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlndpwDalSNF8TzBG6T7kGv73l0IOReNJpKw&s",
-    title: "سماعة بلوتوث",
-    description: "جودة صوت عالية واتصال مستقر بالبلوتوث.",
-    specs: ["BT 5.0", "8 ساعات", "ميكروفون مدمج"],
-    price: 29.99,
-  }
-];
 const ProductList = () => {
+  const location=useLocation();
+  const segments = location.pathname.split("/").filter(Boolean);
+  const [slug,setSlug]= useState(null);
+  let middleSegments = [];
+  
+  const { showNotification}=useNotification();
   const [selectedFilters, setSelectedFilters] = useState({});
   const[optionFilters,setOptionFilters]=useState([]);
-    const [productsss, setProductsss] = useState([]);
-
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(15);
+  const [itemsnumber,setItemsnumber]=useState(0);
+  const [orderbyoption, setOrderbyoption] = useState('default');
+  const [filters, setFilters] = useState({isAvailable:true,softdelete:false});
+  const [totalPages, setTotalPages] = useState(1);
+  const [productss, setProducts] = useState([]);
+  const [categroyinfo,setCategoryinfo]=useState({});
+  
   const handleFilterChange = (filterName, selected) => {
     const updated = { ...selectedFilters, [filterName]: selected };
     setSelectedFilters(updated);
@@ -92,35 +32,76 @@ const ProductList = () => {
 
 
 
+  const fetchProducts = async () => {
+  const latestNewSlugs = slug && slug !== "all" ? [slug] : [];
+
+    const mergedSlugs = [ ...latestNewSlugs];
+    
+  try {
+    console.log(slug)
+    const res = await axios.post("/product/filterproducts", {
+      page:page,
+      limit:limit,
+      orderby:orderbyoption,
+      ...filters,
+      slugs:[slug], 
+    });
+    console.log(res.data,"somthign somthing somthing somthing ")
+    setProducts(res.data.products || []);
+    setPage(res.data.currentPage || 1);
+    setTotalPages(res.data.totalPages || 1);
+    setItemsnumber(res.data.total || 0);
+  } catch (err) {
+     setProducts([]);
+    showNotification("error","لا يوجد اي منتج في هذا التصنيف")
+  }
+};
+  const fetchcategories = async () => {
+  try {
+    const res = await axios.post("/category/filtercategories", {
+      slugs:slug 
+    });
+    setCategoryinfo(res.data.categories[0]);
+  } catch (err) {
+    console.log(err)
+    showNotification("error","هذا التصنيف لا يوجد")
+  }
+};
 
 
-    const [page, setPage] = useState(1);
-  const paginationData = {
-    totalPages: 20, // 🔢 Change this to test different page counts
-    totalItems: 100, // Just for reference — not required here
-  };
-  const [products, setProducts] = useState([]);
-  const [orderbyoption, setOrderbyoption] = useState('default');
-    const [orderby,setorderby]=useState(false)
-  useEffect(()=>{
-  setProducts(productss)
 
-  },[])
+    const [orderby,setorderby]=useState(false);
+
     const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= paginationData.totalPages) {
+    if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
     }
   };
-//   useEffect(() => {
-//     fetch('/api/products') // Replace with your real API endpoint
-//       .then((res) => res.json())
-//       .then((data) => setProducts(data));
-//   }, []);
-
+  
   const handelorder = (option) => {
     setOrderbyoption(option);
-    // Add real sort logic here
   };
+    useEffect(()=>{
+      setSlug(null);
+      setProducts([])
+      setCategoryinfo({})
+    if (segments.length > 1) {
+      setSlug(segments[segments.length - 1]); 
+      setPage(1);
+      middleSegments = segments.slice(1, -1); 
+    } else {
+      setSlug('all');
+      middleSegments = [];
+    }
+    return;
+    },[location.pathname])
+    
+    useEffect(() => {
+      if (slug === null) return;
+      fetchProducts();
+      fetchcategories();
+      return;
+    },[slug,orderbyoption,page,limit]);
 
   return (
     <div className='container-fluid'>
@@ -204,12 +185,12 @@ const ProductList = () => {
     borderBottom: "2px solid #E5E7EB", // light gray underline
     display: "inline-block",
   }}>
-      cortex1 category
+      {categroyinfo.display_name || ""}
     </h2>
 
     {/* Clean Description */}
     <p className="text-muted mb-4" style={{ fontSize: "1rem", maxWidth: "700px" }}>
-      اكتشف مجموعة منتجاتنا المتنوعة ضمن هذه الفئة. تم اختيار كل منتج بعناية لتلبية احتياجاتك وتوفير أفضل تجربة شراء.
+      {categroyinfo.description}
     </p>
         </div>             
               <div className="d-flex align-items-center gap-2 me-auto mb-5 pt-2">
@@ -218,17 +199,17 @@ const ProductList = () => {
       ترتيب حسب:
     </label>
     <select
-      value={orderby}
+      value={orderbyoption}
 
       id="sort"
       className="form-select form-select-sm w-auto"
       onChange={(e) => handelorder(e.target.value)}
     >
-      <option value="default">الافتراضي</option>
-      <option value="price_asc">السعر: الأقل أولاً</option>
-      <option value="price_desc">السعر: الأعلى أولاً</option>
-      <option value="name_asc">الاسم: A-Z</option>
-      <option value="name_desc">الاسم: Z-A</option>
+      <option value={null}>الافتراضي</option>
+      <option value="price-asc">السعر: الأقل أولاً</option>
+      <option value="price-desc">السعر: الأعلى أولاً</option>
+      <option value="title-asc">الاسم: A-Z</option>
+      <option value="title-desc">الاسم: Z-A</option>
     </select>
     </div>
 
@@ -249,48 +230,19 @@ const ProductList = () => {
                <div  className="container-fluid pb-2" style={{backgroundColor:"" ,borderBottom: '1px solid #ddd',}}>
 <div className="row gy-2 gy-sm-3 gy-md-4 justify-content-start" >
         {productss.map((product, idx) => (
-          <div style={{backgroundColor:''}} className="col-6 col-sm-6 col-md-4 mt-3 col-lg-3 px-1 px-sm-3 px-md-2 px-lg-3" key={product.id}>
-            <Link style={{textDecoration:"none"}} to="/test2">
+          <div style={{backgroundColor:''}} className="col-6 col-sm-6 col-md-4 mt-3 col-lg-3 px-1 px-sm-3 px-md-2 px-lg-3" key={idx}>
+            <Link style={{textDecoration:"none"}} to={`/product/${product.slug}`}>
             <ProductCard product={product} />
             </Link>
           </div>
         ))}
       </div>
     </div>
-     {/* <div className="containe-fluid mt-4 d-flex" style={{flexFlow:"column nowrap",overflow:"auto",maxHeight:"fit-contant",justifyContent:"space-between",alignItems:"end"}}>
-      <h5 className="text-start mb-4 col-12">الصفحة الحالية: <strong>{page}</strong></h5>
 
-      <nav aria-label="Page navigation ">
-        <ul className="pagination justify-content-center pagination-rounded shadow-sm">
-          <li className={`page-item ${page === 1 ? 'disabled' : ''}`}>
-            <button className="page-link" onClick={() => handlePageChange(page - 1)}>
-              <i className="bi bi-chevron-right"></i> السابق
-            </button>
-          </li>
-
-          {[...Array(paginationData.totalPages)].map((_, index) => {
-            const pageNum = index + 1;
-            return (
-              <li key={pageNum} className={`page-item ${pageNum === page ? 'active' : ''}`}>
-                <button className="page-link" onClick={() => handlePageChange(pageNum)}>
-                  {pageNum}
-                </button>
-              </li>
-            );
-          })}
-
-          <li className={`page-item ${page === paginationData.totalPages ? 'disabled' : ''}`}>
-            <button className="page-link" onClick={() => handlePageChange(page + 1)}>
-              التالي <i className="bi bi-chevron-left"></i>
-            </button>
-          </li>
-        </ul>
-      </nav>
-    </div> */}
     < Pagination
   page={page}
-  totalPages={paginationData.totalPages}
-  onPageChange={handlePageChange()}
+  totalPages={totalPages}
+  onPageChange={handlePageChange}
 />
 
         </div>
@@ -354,7 +306,6 @@ function Pagination({ page, totalPages, onPageChange }) {
 
   return (
     <div className="containe mt-3 col-11 d-flex g-0" style={{flexFlow:"row nowrap",justifyContent:"space-evenly",alignItems:"end"}}>
-      <h5 className="text-start ">الصفحة الحالية: <strong>{page}</strong></h5>
     <nav aria-label="Page navigation ">
       <ul className="pagination  justify-content-center pagination-rounded shadow-sm m-0 p-0">
 

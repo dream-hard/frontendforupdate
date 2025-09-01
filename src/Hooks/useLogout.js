@@ -23,8 +23,6 @@ const useLogout=()=>{
 
         } catch (error) {
 
-            Setauth(null);
-            navigate('/');
         }
     
     }

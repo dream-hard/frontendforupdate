@@ -31,7 +31,7 @@ export default function Sidebar({ istoggled, toggleSidebar }) {
       >
         <div
           className="d-flex justify-content-between align-items-center"
-          onClick={() => hasSub ? toggleMenu(item.name) : null}
+          onClick={() => hasSub ? toggleMenu(item.display_name) : null}
           style={{ cursor: 'pointer' }}
         >
           {!hasSub ? (
@@ -44,7 +44,7 @@ export default function Sidebar({ istoggled, toggleSidebar }) {
               {item.name}
             </NavLink>
           ) : (
-            <span className="nav-link d-block text-dark w-100">{item.name}</span>
+            <span className="nav-link d-block text-dark w-100">{item.display_name}</span>
           )}
 
           {hasSub && (
@@ -85,10 +85,10 @@ export default function Sidebar({ istoggled, toggleSidebar }) {
                 `nav-link d-block w-100 ${isActive ? 'active-link text-primary' : 'text-dark'}`
               }
             >
-              {item.name}
+              {item.display_name}
             </NavLink>
           ) : (
-            <span className="nav-link d-block text-dark w-100">{item.name}</span>
+            <span className="nav-link d-block text-dark w-100">{item.display_name}</span>
           )}
 
           {hasSub && (
@@ -150,10 +150,10 @@ export default function Sidebar({ istoggled, toggleSidebar }) {
   const getlinks= async (signal)=>{
       try {
 
-        const res = await axios.post("/category/tree",{id:null}, {
+        const res = await axios.post("/category/getallnestedcategorieswithallchildren",{id:null,deleted:false,includeall:false}, {
           signal
         });
-
+        console.log(res.data)
         setLinks(res.data);
         return
       } catch (error) {
@@ -181,51 +181,10 @@ export default function Sidebar({ istoggled, toggleSidebar }) {
     };
   },[])
 
-const linkss = [
-  {
-    name: "الرئيسية",
-    link: "/main"
-  },{
-    name:"المنتجات",
-    link:'/view'
-  },
-  {
-    name: "مشاهدة منتجات",
-    link: "/view",
-    submenu: [
-      {
-        name: "الكل",
-        link: "/view/all"
-      },
-      {
-        name: "جديد",
-        link: "/view/new"
-      },
-      {
-        name: "التصنيفات",
-        link: "/view/categories",
-        submenu: [
-          {
-            name: "الكترونيات",
-            link: "/view/categories/electronics"
-          },
-          {
-            name: "ملابس",
-            link: "/view/categories/clothes"
-          },
-          {
-            name:"nasdf",
-            link:"/main"
-          }
-        ]
-      }
-    ]
-  }
-];
 const renderlinkfinal= (items,issub=false)=>{
         return items.map((item,index)=>{
-            const hasSub=!!item.submenu;
-            const isOpen=openMenus[item.name];
+            const hasSub=!!item.children;
+            const isOpen=openMenus[item.display_name];
 
             return(<>
                 {!hasSub ?  (
@@ -236,7 +195,7 @@ const renderlinkfinal= (items,issub=false)=>{
         }
       >
         <li className={`${issub ? "sidebarr-item":"sidebarr-item" }  `}>
-          {item.name}
+          {item.display_name}
         </li>
       </NavLink>
 
@@ -251,7 +210,7 @@ const renderlinkfinal= (items,issub=false)=>{
           style={{ cursor: 'pointer',width:"100%",backgroundColor:"" }}
         >
             <>
-            <span className="nav-link d-block text-dark w-100">{item.name}</span>
+            <span className="nav-link d-block text-dark w-100">{item.display_name}</span>
             <i className={`bi ms-2 ${isOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`}></i>
             </>
           
@@ -261,7 +220,7 @@ const renderlinkfinal= (items,issub=false)=>{
 
         {hasSub && isOpen && (
           <ul className="sidebarr-submenu list-unstyled ">
-            {renderLinksss(item.submenu, true)}
+            {renderLinksss(item.children, true)}
           </ul>)}
             </li>
           )}
@@ -280,13 +239,13 @@ const hasSub = !!item.children && item.children.length > 0;
             return(<>
                 {!hasSub ?  (
        <NavLink
-        to={item.link}
+        to={`/category${item.link}`}
         className={({ isActive }) =>
           `nav-link d-block ${isActive ? 'active-link text-primary' : 'text-dark'}`
         }
       >
         <li className={`${issub ? "sidebarr-item":"sidebarr-item" }  `}>
-          {item.name}
+          {item.display_name}
         </li>
       </NavLink>
 
@@ -301,7 +260,7 @@ const hasSub = !!item.children && item.children.length > 0;
           style={{ cursor: 'pointer',width:"100%",backgroundColor:"" }}
         >
             <>
-            <span className="nav-link d-block text-dark w-100">{item.name}</span>
+            <span className="nav-link d-block text-dark w-100">{item.display_name}</span>
             <i className={`bi ms-2 ${isOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`}></i>
             </>
           
@@ -311,7 +270,7 @@ const hasSub = !!item.children && item.children.length > 0;
 
         {hasSub && isOpen && (
           <ul className="sidebarr-submenu list-unstyled ">
-            {renderLinkssss(item.children, true)}
+            {renderlinkfinalfinal(item.children, true)}
           </ul>)}
             </li>
           )}

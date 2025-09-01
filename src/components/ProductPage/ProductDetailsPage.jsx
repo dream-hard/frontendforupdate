@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ProductImageGallery from "./image";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import './productpage.css'
 import useAuth from "../../Hooks/useAuth";
+import axios from "../../api/fetch";
 
 const exampleProduct = {
   uuid: "123e4567-e89b-12d3-a456-426614174000",
@@ -86,6 +87,7 @@ const exampleProduct = {
 };
 
 export default function ProductDetailsPage() {
+    const { slug } = useParams();   
     const [product, setProduct] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [newReview, setNewReview] = useState({
@@ -125,11 +127,29 @@ const handleBuyNow =async () => {
       [name]: value,
     }));
   };
-
-
-  useEffect(() => {
-    setProduct(exampleProduct);
-  }, []);
+  async function fetchProductBySlug(slug) {
+  try {
+    const res = await axios.post('/product/justgettheproudctbyslug',{slug});
+    let metadata = null;
+    try {
+      metadata = res.data.product.metadata ? JSON.parse(res.data.product.metadata) : null;
+    } catch (e) {
+      metadata = null; // لو صار خطأ بالتحويل
+    }
+     res.data.product.metadata=metadata;
+    return res.data.product;   
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    throw error;
+  }
+}
+useEffect(() => {
+  async function loadProduct() {
+    const data = await fetchProductBySlug(slug);
+    setProduct(data);
+  }
+  loadProduct();
+}, [slug]);
 
   if (!product) return <div>Loading...</div>;
 
@@ -138,25 +158,37 @@ const handleBuyNow =async () => {
       <div className="row" style={{justifyContent:"start",alignItems:"start",alignContent:"start"}}>
         {/* Main Image and Gallery */}
 
-<ProductImageGallery images={product.images} />
+<ProductImageGallery images={product.Product_images} />
         {/* Product Info */}
       
         <div className="col-md-6">
   <h2 className="fw-bold mb-2">{product.title}</h2>
 
-  <p className="text-muted mb-3">SKU: {product.uuid.slice(0, 8)}</p>
-
+<p className="text-muted mb-3">
+  SKU: {product?.uuid ? product.uuid.slice(0,18) : "N/A"}
+</p>
+  {(product.discount)?
+   (<>
   <div className="mb-4">
-    <h4 className="text-danger d-inline me-3">
+    <h4 className="text-success d-inline me-3">
       ${product.price}
     </h4>
     {product.original_price && (
-      <span className="text-muted text-decoration-line-through fs-6">
+      <span className="text-danger text-decoration-line-through fs-6">
         ${product.original_price}
       </span>
     )}
   </div>
 
+   </>)
+  :(<>
+  <div className="mb-4">
+    <h4 className="text-muted d-inline me-3">
+      ${product.price}
+    </h4>
+  </div>
+  </>)}
+  
   <p className="mb-4">{product.description}</p>
 
   <div className="d-flex flex-wrap align-items-center gap-3 mt-4">

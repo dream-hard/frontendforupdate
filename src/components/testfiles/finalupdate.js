@@ -205,7 +205,6 @@ try {
     if (mainImage && existingMain?.filename && !deleted.includes(existingMain.filename)) {
       deleted.push(existingMain.filename);
     }
-
     const data = new FormData();
     data.append("id", formData.id);
 
@@ -267,14 +266,14 @@ try {
 
     // deleted existing image filenames
     data.append("delete_filenames", JSON.stringify(deleted));
-
+    
     try {
-      console.log(formData)
+  
       const res = await axios.patch("/product/update/updateproductwithimages", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       showNotification('success',"لقد تم تحديث المنتج بنجاح")
-      onUpdated && onUpdated(res.data.product || {});
+      onUpdated && onUpdated();
       onClose && onClose();
       
       
@@ -395,7 +394,7 @@ try {
                       <div className="card mb-2" style={{ width: "150px" }}>
                         <img src={`${m.filename}`} className="card-img-top" alt="Main" />
                         <div className="card-body p-2 text-center">
-                          <button type="button" className="btn btn-sm btn-danger" onClick={() => removeExistingImage(m.disk_filename)}>Delete</button>
+                          <button type="button" className="btn btn-sm btn-danger" onClick={() => removeExistingImage(m.filename)}>Delete</button>
                         </div>
                       </div>
                     );
@@ -420,7 +419,7 @@ try {
                   {existingImages.filter(img => img.image_type !== "main").map((img, idx) => (
                     <div key={idx} className="card" style={{ width: "120px", position: "relative" }}>
                       <img src={`${img.filename}`} className="card-img-top" alt={`Supp ${idx}`} />
-                      <button type="button" className="btn btn-sm btn-danger" style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "50%", padding: "0.25rem 0.5rem" }} onClick={() => removeExistingImage(img.disk_filename)}>&times;</button>
+                      <button type="button" className="btn btn-sm btn-danger" style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "50%", padding: "0.25rem 0.5rem" }} onClick={() => removeExistingImage(img.filename)}>&times;</button>
                     </div>
                   ))}
                 </div>

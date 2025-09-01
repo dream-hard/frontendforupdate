@@ -71,22 +71,24 @@ export default function AuthFlip() {
           signal:controllerRef.current.signal,
           showSuccessNotification: true,
         });
-        Setauth(response.data.authtoken);
+        Setauth(response.data);
 
-
+        navigate('/profile',replace)
    
       } catch (error) {
         if (originalAxios.isCancel(error)|| error.name === 'CanceledError') {
           showNotification("warning","Request canceled");
 
         } else {
-          showNotification("error",(error?.response?.data?.err||"Please Try Again")+'  '+error?.response?.data?.msg )
-        }
+          showNotification(
+            "error",
+            error?.response?.data?.err || error?.response?.data?.msg || error.message || "Please try again"
+          );        }
         return;
       }
 
     setLoginValidated(false);
-    setLoginData({ email: '', password: '' ,phone_number:""});
+    setLoginData({ email: '', password: '' ,phoneNumber:""});
     setShowLoginPassword(false);
   // return navigate('/profile',{replace});
   };
@@ -114,7 +116,6 @@ export default function AuthFlip() {
 
 
       try {
-
         const response = await axios.post("/signup",
           signupData
           ,{
@@ -124,11 +125,16 @@ export default function AuthFlip() {
                 
         showNotification("success","لقد سجلت بنجاح")
       } catch (error) {
+        console.log(error)
         if (originalAxios.isCancel(error)|| error.name === 'CanceledError') {
           showNotification("warning","Request canceled");
 
         } else {
-          showNotification("error",error)
+          
+          showNotification(
+            "error",
+            error?.response?.data?.err || error?.response?.data?.msg || error.message || "Please try again"
+          );
         }
         return;
       }
@@ -142,7 +148,7 @@ export default function AuthFlip() {
       setSignupData({ email: '', password: '', confirmPassword: '',bio:"",username:"",name:"",phoneNumber:"" });
       setShowSignupPassword(false);
       setShowConfirmPassword(false);
-    return navigate('/log',{replace});
+      setIsSignup(false);
   };
 
   // Toggle between login and signup
@@ -236,33 +242,7 @@ export default function AuthFlip() {
               {loginValidated && !/^09\d{8}$/.test(loginData.phoneNumber) && <small className="text-danger">Please enter a valid Phone number.</small>}
               </div>
             </div>
-            // <div className="">
-            //   <label htmlFor="loginPassword" className="form-label">Password</label>
-            //   <div className="input-group">
-            //     <input
-            //       type={showLoginPassword ? 'text' : 'password'}
-            //       className={`form-control ${
-            //         loginValidated && loginData.password.length < 6 ? 'is-invalid' : ''
-            //       }`}
-            //       id="loginPassword"
-            //       name="password"
-            //       value={loginData.password}
-            //       onChange={handleLoginChange}
-            //       required
-            //       minLength={6}
-            //     />
-            //     <span
-            //       className="input-group-text"
-            //       onClick={() => setShowLoginPassword(!showLoginPassword)}
-            //       style={{ cursor: 'pointer', userSelect: 'none' }}
-            //     >
-            //       <i className={`bi ${showLoginPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
-            //     </span>
-            //      {loginValidated && loginData.password.length < 6 && (
-            //      <div className="invalid-feedback">Password must be at least 6 characters.</div>
-            //     )}
-            //   </div>
-            // </div>
+   
 
             )}
 
@@ -299,7 +279,15 @@ export default function AuthFlip() {
           </form>
             <div className="mt-3 text-center">
             تسجيل الدخول بأستخدام ؟{' '}
-            <button className="btn btn-link p-0" onClick={()=>{ setIsEmail((prev)=>!prev);  if(isEmail){setLoginData({...loginData,phoneNumber:""})}else{setLoginData({...loginData,email:""})}}} type="button">
+            <button className="btn btn-link p-0" 
+            onClick={() => {
+                setIsEmail(prev => {
+                  const next = !prev;
+                  setLoginData(ld => next ? { ...ld, phoneNumber: "" } : { ...ld, email: "" });
+                  return next;
+                });
+              }}
+            type="button">
             {!isEmail?"Email":"رقم الهاتف" }
             </button>
             </div>

@@ -34,9 +34,12 @@ const ProductImageGallery = ({ images }) => {
             alt={`Thumbnail ${idx}`}
             className={`img-thumbnail ${img.filename === selectedImage ? "border-primary" : ""}`}
             style={{
-              width: "80px",
-              height: "80px",
-              objectFit: "cover",
+
+              width: "140px",
+              height:"140px",
+              objectFit: "contain",
+                objectPosition: "center",
+
               cursor: "pointer",
               borderWidth: img.filename === selectedImage ? "2px" : "1px",
             }}
