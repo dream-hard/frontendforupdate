@@ -46,7 +46,6 @@ const uploadPreset = 'ssssss'; // غيره بupload preset الخاص بك (بد
       setUploadedUrls(urls);
       alert('تم رفع جميع الصور بنجاح!');
     } catch (error) {
-      console.error(error);
       alert('حدث خطأ أثناء رفع الصور');
     }
 

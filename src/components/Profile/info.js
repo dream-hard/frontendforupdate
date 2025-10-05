@@ -1,10 +1,14 @@
 import react, { useEffect, useState,useRef } from "react";
 import axios,{originalAxios} from '../../api/fetch'
+import useAuth from "../../Hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function Info(){
   const [user, setUser] = useState({});
   const controllerRef = useRef(null);
-    
+  const {claims}=useAuth();
+  const navigate=useNavigate();
+
     const fetchUser= async (signal)=>{
       try {
         setLoadingStage(LOADING_STAGES.FETCHING);
@@ -20,7 +24,6 @@ export default function Info(){
         if (originalAxios.isCancel(error)|| error.name === 'CanceledError') {
           console.log("Request canceled");
         } else {
-          console.error("Failed to fetch user data:", error);
           setLoadingStage(LOADING_STAGES.ERROR);
         }
       }
@@ -149,7 +152,7 @@ export default function Info(){
                 {/* Profile picture */}
                 <div className="col-md-4 text-center mb-4">
                 <img
-                    src={user.profile_pic || "https://placehold.co/150?text=adsf"}
+                    src={user.profile_pic || `https://placehold.co/150?text=${user.name}`}
                     className="rounded-circle shadow"
                     alt="Profile"
                     width="150"
@@ -167,6 +170,26 @@ export default function Info(){
                     </>
             
                 )}
+                  {claims && (["admin","super_admin","Owner"].includes(claims?.role.uuid)) &&
+                    <div className="col-md-12 text-center mt-3">
+                      <div
+                        className="card  shadow border-0 rounded-4 h-100 bg-gradient"
+                        style={{ background: "linear-gradient(135deg, #6366F1, #9333EA)" }}
+                      >
+                        <div className="card-body d-flex flex-column justify-content-between">
+                          <div>
+                            <h5 className="card-title fw-bold">🚀 ابدأ الآن</h5>
+                            <p className="card-text opacity-75">
+                              استكشف الأدوات والتقارير لزيادة إنتاجيتك.
+                            </p>
+                          </div>
+                          <button onClick={()=>navigate('/dashboard')} className="btn btn-light text-primary fw-semibold mt-3 rounded-pill">
+                            الذهاب إلى لوحة التحكم
+                          </button>
+                        </div>
+                      </div>
+                    </div> 
+                    }
 
                 </div>
 
@@ -313,6 +336,7 @@ export default function Info(){
                 </button>
               )}
                     </div>
+      
                     </div>
                 </div>
                 </div>

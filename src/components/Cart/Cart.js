@@ -14,7 +14,7 @@ const customer = {
 };
 
 export default function CartPage() {
-  const { cart, removeFromCart,updateQuantity } = useCart();
+  const { cart, removeFromCart,updateQuantity ,giveme} = useCart();
   const [discountCode, setDiscountCode] = useState("");
   const [discountPercent, setDiscountPercent] = useState(0);
 
@@ -34,6 +34,7 @@ export default function CartPage() {
 
     html2pdf().set(options).from(element).save();
   };
+  const containerRef = useRef(null);
 
   const handleApplyDiscount = () => {
     if (discountCode === "SAVE10") {
@@ -45,7 +46,6 @@ export default function CartPage() {
   };
 
 
-  const containerRef = useRef(null);
   const [invoiceChunks, setInvoiceChunks] = useState([]);
 
   useEffect(() => {

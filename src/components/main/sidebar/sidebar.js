@@ -153,7 +153,6 @@ export default function Sidebar({ istoggled, toggleSidebar }) {
         const res = await axios.post("/category/getallnestedcategorieswithallchildren",{id:null,deleted:false,includeall:false}, {
           signal
         });
-        console.log(res.data)
         setLinks(res.data);
         return
       } catch (error) {

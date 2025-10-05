@@ -226,7 +226,6 @@ export default function MainPage() {
           Setauth('asdfdsf')
           if(auth===null ||auth===undefined){setShowSearch(false);navigate('/log');}
           else{
-            console.log(auth);
             setShowSearch(false);
             setShowdash((prev)=> !prev);
           }

@@ -12,11 +12,24 @@ import useLogout from "../../../Hooks/useLogout";
 export default function MainPage() {
     const [istoggled, setIstoggled] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
+    const [keyword, setKeyword] = useState("");
+    const year = new Date().getFullYear()
+    const handelchange=(e)=>{
+      setKeyword(e.target.value);
+    }
+
     const [locat,setLocat]=useState("");
+
     const{auth,Setauth}=useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-    
+        const handelsearchsumit=async (e)=>{
+      e.preventDefault();
+      if(keyword.trim()==="") return;
+      navigate(`/search?keyword=${keyword.trim()}`);
+      return;
+    }
+
   const logout=useLogout();
     
     const toggleSidebar=()=>{setIstoggled(!istoggled);
@@ -26,8 +39,10 @@ export default function MainPage() {
     ////
 
  const [showdash, setShowdash] = useState(false);
+
   const dashref = useRef(null);
     const searchref = useRef(null);
+
 
  useEffect(() => {
     function handleClickOutside(event) {
@@ -91,7 +106,10 @@ export default function MainPage() {
           </button>
 
           <Link to="/" className="navbar-brand  ms-3 p-sm-1 p-md-2 pb-md-2">
-            The Cortex 7
+            <h4 className="fw-bold mb-0 wave-text" style={{ fontFamily: "'Comfortaa', sans-serif" }}>
+              The Cortex 7
+            </h4>
+
           </Link>
         
 
@@ -147,12 +165,14 @@ export default function MainPage() {
           transition: "max-height 0.4s ease",
         }}
       >
-        <form className="d-flex p-2" style={{ gap: "8px" }}>
+        <form onSubmit={handelsearchsumit} className="d-flex p-2" style={{ gap: "8px" }}>
           <input
             className="form-control"
-            type="search"
+            type="text"
             placeholder="ابحث عن المنتجات..."
             aria-label="بحث"
+            value={keyword}
+            onChange={handelchange}
           />
           <button className="btn btn-primary btn-outline-light text-white" type="submit">
             بحث
@@ -175,7 +195,7 @@ export default function MainPage() {
 
         {auth ? (<>   
         <NavLink to='/profile' className='nav-link text-dark m-2'><li> <i className="bi bi-person text-primary "></i> الصفحة الشخصية </li></NavLink>
-        <NavLink to='cart' className='nav-link text-dark m-2'><li><i className="bi bi-cart-plus text-primary"></i> السلة </li></NavLink>
+        <NavLink to='/cart' className='nav-link text-dark m-2'><li><i className="bi bi-cart-plus text-primary"></i> السلة </li></NavLink>
         <NavLink onClick={(event)=>{event.preventDefault(); logout(); }} className='nav-link text-dark m-2 mb-0'><li className="text-danger"><i className="bi bi-box-arrow-in-right text-danger"></i> تسجيل الخروج</li></NavLink></>)
         :(<>
         <NavLink to='/log' className='nav-link text-dark m-2'><li> <i className="bi bi-person text-primary "></i> تسجيل دخول </li></NavLink>
@@ -200,7 +220,7 @@ export default function MainPage() {
          
               </li>
                      </Link>
-              <Link className="nav-link text-white p-0 m-0 pb-0 pt-0" >
+              <Link to={"/cart"} className="nav-link text-white p-0 m-0 pb-0 pt-0" >
 
                   <li className="nav-item p-0 m-0 " >
                       <i className="bi bi-cart text-white fs-4 p-0 m-0"></i>
@@ -273,18 +293,22 @@ export default function MainPage() {
            (<>
                <header className="app-header d-none d-lg-flex me-auto ms-auto py-3 " style={{backgroundColor:""}}>
           {/* 1) Home icon */}
-          <a href="/main" className="home-link">
+          <Link to="/" className="home-link">
             <img 
               src={mayimage}
               alt="Home"
               className="home-icon"
             />
-          </a>
+          </Link>
 
           {/* 2) Search input with attached icon button */}
+          
           <div className="input-group search-group">
+            <form className="d-flex w-100" onSubmit={handelsearchsumit} >
             <input
-              type="search"
+              type="text"
+              value={keyword}
+              onChange={handelchange}
               className="form-control"
               placeholder="Search…"
               aria-label="Site search"
@@ -293,19 +317,21 @@ export default function MainPage() {
               className="btn btn-outline "
               type="button"
               aria-label="Search"
+              onClick={handelsearchsumit}
             >
               <i className="bi bi-search rounded"></i>
             </button>
+            </form>
           </div>
 
           {/* 3) Text logo */}
-        <a href="/main" className="home-link">
+        <Link to="/" className="home-link">
             <img 
               src={myimage}
               alt="Home"
               className="home-icon"
             />
-          </a>
+          </Link>
     </header>
 
         </>):(<></>) }
@@ -340,13 +366,10 @@ export default function MainPage() {
         <div className="row main-row " style={{backgroundColor:""}}>    
           {/* لفوق كل ثابت */}
           {/* المحتوى الرئيسي */}
-          {/* /////////////
-          // /////////////
-          // ///////////
-          /////////// */}
+     
           {/*  */}
           
-          <main style={{backgroundColor:"",minHeight:"100vh"}} className="col-lg-12 p-0 ">
+          <main style={{backgroundColor:"",minHeight:"100vh"}} className="col-lg-12  p-0 ">
            
             <Outlet></Outlet>
          
@@ -361,7 +384,7 @@ export default function MainPage() {
 
 
       {/* الفوتر */}{/* هون ثابت */}
-      <footer className=" text-light py-4 mt-4 footer" style={{backgroundColor:"rgb(32, 112, 210)"}}>
+      {/* <footer className=" text-light py-4 mt-4 footer" style={{backgroundColor:"rgb(32, 112, 210)"}}>
         <div className="container" style={{backgroundColor:"rgb(32, 112, 210)"}}>
           <div className="row" style={{backgroundColor:"rgb(32, 112, 210)"}}>
             <div className="col-md-6" style={{backgroundColor:"rgb(32, 112, 210)"}}>
@@ -381,11 +404,81 @@ export default function MainPage() {
             </div>
           </div>
         </div>
-      </footer>
-      </div>
+      </footer> */}
+
+        <footer
+          className="text-light py-4 mt-5 footer"
+          style={{
+            backgroundColor:"rgb(32, 112, 210)"
+          }}
+         >
+          <div className="container">
+            <div className="row align-items-center">
+              {/* Left side */}
+              <div className="col-md-6 mb-3 mb-md-0">
+                        <h4 style={{ fontFamily: "'Comfortaa', 'Poppins', sans-serif", fontWeight:700 }}>
+                          The Cortex 7
+                        </h4>
+                        
+                        <p className="mb-0 small opacity-75">&copy; {year} جميع الحقوق محفوظة.</p>
+              </div>
+
+              {/* Right side - Social links */}
+                  <div className="col-md-6 d-flex justify-content-md-end justify-content-start align-items-center gap-2">
+                    {/* Social buttons */}
+                    <a
+                      href="https://www.facebook.com/share/19d6shfM2g/"
+                      className="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
+                      style={{ width: 40, height: 40 }}
+                      aria-label="Facebook"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <i className="bi bi-facebook" />
+                    </a>
+
+                    <a
+                      href="https://t.me/C_ortex7"
+                      className="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
+                      style={{ width: 40, height: 40 }}
+                      aria-label="Telegram"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <i className="bi bi-telegram" />
+                    </a>
+
+                    <a
+                      href="https://www.instagram.com/cortex__7?igsh=MTB3dnJrb2Ztcnh4eQ%3D%3D&utm_source=qr"
+                      className="btn btn-outline-light btn-sm rounded-circle d-inline-flex align-items-center justify-content-center"
+                      style={{ width: 40, height: 40 }}
+                      aria-label="Instagram"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <i className="bi bi-instagram" />
+                    </a>
+
+                    {/* optionally: WhatsApp as a pill */}
+                    <a
+                      href="/"
+                      className="btn btn-success btn-sm rounded-pill ms-2 d-none d-sm-inline-flex align-items-center"
+                      style={{ paddingLeft: 12, paddingRight: 12, fontWeight: 600 }}
+                      aria-label="WhatsApp"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <i className="bi bi-whatsapp me-2" />
+                      تواصل
+                    </a>
+                  </div>
             </div>
+          </div>
+        </footer>
 
-
+      </div>
+    </div>
     </>
   );
 }
+

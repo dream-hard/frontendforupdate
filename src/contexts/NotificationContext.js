@@ -20,11 +20,11 @@ export const NotificationProvider = ({ children }) => {
   
 
 
+
   return (
     <NotificationContext.Provider value={{ showNotification }}>
       {children}
 
-      {/* Render all notifications */}
       <div className="notification-container">
         {notifications.map(({ id, type, message }) => (
           <div key={id} className={`notification-popup ${type}`}>
@@ -39,7 +39,7 @@ export const NotificationProvider = ({ children }) => {
 export const attachNotificationInterceptor = (axios, showNotification) => {
   axios.interceptors.response.use(
     (response) => {
-      if (response.config.showSuccessNotification) {
+      if (response.status===200 ) {
         showNotification("success", response.data.msg || "تمت العملية بنجاح");
       }
       return response;
@@ -49,6 +49,7 @@ export const attachNotificationInterceptor = (axios, showNotification) => {
         error.response?.data?.msg ||
         error.message ||
         "حدث خطأ ما أثناء الطلب";
+      if(message!=="not loged in")
       showNotification("error", message);
       return Promise.reject(error);
     }

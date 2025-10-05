@@ -1,17 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import useNotification from "../../Hooks/useNotification";
 import {  useEffect } from "react";
-import useAuth from "../../Hooks/useAuth";
 function Notfound(){
 
     const navigate=useNavigate();
       const { showNotification } = useNotification() // ← must match context exactly
-    const {auth}=useAuth()
     useEffect(()=>{
-      console.log(auth)
 
       showNotification('error', 'Oops, Not Found Page');
-},[auth])
+},[])
     return (
         <>
         <div className='conatiner '>

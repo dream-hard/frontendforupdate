@@ -305,8 +305,8 @@ import React, { createContext, useEffect, useRef, useState } from "react";
 import axios from "./api/fetch";
 
 const AuthContext = createContext({});
-
-function parseJwt(token) {
+ 
+async function  parseJwt(token) {
   if (!token) return null;
   try {
     const parts = token.split(".");
@@ -322,7 +322,7 @@ function parseJwt(token) {
 
 export const AuthProvider = ({ children }) => {
   const [auth, Setauth] = useState(null); // { authtoken, ... }
-  const [claims, setClaims] = useState({ roles: ["guest"] });
+  const [claims, setClaims] = useState({role:{uuid:"guest"}});
   const [loading, setLoading] = useState(true);
 
   // keep a ref to latest auth to avoid stale closures in interceptors
@@ -352,8 +352,11 @@ export const AuthProvider = ({ children }) => {
   // Update claims whenever token changes
   useEffect(() => {
     const token = auth?.authtoken;
-    const decoded = token ? parseJwt(token) : null;
-    setClaims(decoded || { roles: ["guest"] });
+    const decoded =  token ?   decodeToken(token) : null;
+    if(!decoded) return setClaims({role:{uuid:"guest"}});
+
+    
+    setClaims(decoded.result || {role:{uuid:"guest"}});
   }, [auth]);
 
   // Request interceptor: attach latest token
@@ -394,13 +397,12 @@ export const AuthProvider = ({ children }) => {
         const originalReq = error?.config;
         // No response (network) -> bubble up or handle offline
         if (!error?.response || error.code === "ERR_NETWORK") {
-            
             Setauth(null)
           return Promise.reject(error);
         }
 
         const status = error.response.status;
-        const isAuthError = status === 401 || status === 403 ;
+        const isAuthError = status === 401 ;
 
         if (isAuthError && originalReq && !originalReq._retry) {
           if (isRefreshing) {
@@ -469,3 +471,24 @@ export const AuthProvider = ({ children }) => {
 };
 
 export default AuthContext;
+
+function decodeToken(token) {
+  if (!token) return null;
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const payload = parts[1];
+    // base64url -> base64
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (err) {
+    console.error("Failed to decode token", err);
+    return null;
+  }
+}

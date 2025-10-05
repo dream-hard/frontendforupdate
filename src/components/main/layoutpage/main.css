@@ -1,3 +1,23 @@
+.wave-text {
+  font-weight: 700;
+  font-size: 1.45rem; /* adjust */
+  background: linear-gradient(90deg, #fff307, rgb(144, 194, 255), #fff307); /* yellow → primary → yellow */
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+  animation: waveGradient 3s linear infinite;
+}
+
+@keyframes waveGradient {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
 
 /* Hide Bootstrap’s default arrow backgrounds */
 .carousel-control-prev-icon,
@@ -153,7 +173,7 @@ min-width: max-content;
  
     align-self: center !important;
     max-width: 1140px;
-
+    min-width: 1140px;
   }
   .fff{
     

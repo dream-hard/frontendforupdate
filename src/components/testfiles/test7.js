@@ -141,16 +141,13 @@ const handleCloseModals = () => {
         const cats=await axios.post('/category/getallnestedcategorieswithallchildren',{nothing:"nothing"});
         setNestcat(cats.data);
       } catch (error) {
-          console.error(error)
       }
     }
     const fetchcategories=async()=>{
       try {
         const cats=await axios.post('/category/getallcategoryleafids',{});
-        console.log(cats.data)
         setCategories(cats.data);
       } catch (error) {
-      console.error(error)
       }
     }
     const fetchcurrencies=async()=>{
@@ -224,7 +221,6 @@ const handleChange = (e) => {
   });
 };
 const handleReset = () => setFilters(initialFilters);
-
 
 const handlechangebody = async (e) => {
     e.preventDefault();
@@ -308,7 +304,6 @@ const fetchSelectedProduct = async (id) => {
   try {
     const res = await axios.post(`/product/justgetalltheproduct`,{id:id});
     setSelectedItem(res.data.product);
-    console.log(res.data.product)
     setSelectedItemStatus("success");
   } catch (err) {
     showNotification("error",(err.message || "Failed to fetch product"))

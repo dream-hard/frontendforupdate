@@ -1,0 +1,76 @@
+/* src/styles/modern-cat-bootstrap.css */
+
+/* hide scrollbar but keep scrolling */
+.mc-scroller {
+  gap: 12px;
+  padding: 10px 56px;
+  scroll-snap-type: x mandatory; /* scroll snap for better UX */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  align-items: stretch;
+  -ms-overflow-style: none; /* IE & Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.mc-scroller::-webkit-scrollbar { display: none; }
+
+/* card width var */
+.mc-card {
+  flex: 0 0 auto;
+  width: var(--mc-card-w, 170px);
+  border-radius: 12px;
+  overflow: hidden;
+  scroll-snap-align: center;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: transform .16s ease, box-shadow .16s ease;
+  border: none;
+}
+.mc-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.08); }
+
+.object-fit-cover { object-fit: cover; }
+
+/* ratio helper smaller thumb */
+.ratio-4x3 { --bs-aspect-ratio: 75%; height: auto; position: relative; overflow: hidden; }
+
+/* nav buttons (transparent modern) */
+.mc-btn-prev, .mc-btn-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.98);
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  font-size: 20px;
+  line-height: 1;
+  padding: 0;
+}
+.mc-btn-prev { left: 8px; }
+.mc-btn-next { right: 8px; }
+
+/* indicators */
+.mc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ddd;
+  border: none;
+  outline: none;
+}
+.mc-dot.active { background: #333; transform: scale(1.15); }
+
+/* badges spacing */
+.top-2 { top: 8px; }
+.start-2 { left: 8px; }
+
+@media (max-width: 768px) {
+  .mc-scroller { padding: 8px 12px; }
+  .mc-card { width: calc(var(--mc-card-w, 170px) - 12px); }
+  .mc-btn-prev, .mc-btn-next { display: none; } /* mobile swipe */
+  .ratio-4x3 { --bs-aspect-ratio: 66.66%; } /* shorter image on mobile */
+}

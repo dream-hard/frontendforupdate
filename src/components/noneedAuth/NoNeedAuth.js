@@ -3,7 +3,7 @@ import useAuth from "../../Hooks/useAuth";
 import { useEffect } from "react";
 
 function NoNeedAuth() {
-  const { auth, loading } = useAuth(); // 👈 get loading state
+  const { auth, loading,claims } = useAuth(); // 👈 get loading state
   const location = useLocation();
 
   if (loading) {

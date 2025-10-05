@@ -3,6 +3,13 @@ import Layout from './components/adminlayout/Layout';
 import { useNavigate,createBrowserRouter,Routes , Route ,Link,NavLink, createRoutesFromElements, RouterProvider, Outlet, Navigate} from 'react-router-dom';
 import { useEffect, useState,useContext, useLayoutEffect } from 'react';
 //////components 
+///////////////        TESTING           /////////////////////////
+
+
+
+
+
+///////////////        TESTING           /////////////////////////
 
 import NoNeedAuth from './components/noneedAuth/NoNeedAuth';
 import Notfound from './components/notfound/Notfound';
@@ -30,8 +37,36 @@ import AddProductPage from './components/testfiles/testaddproduct.js';
 import ProductForm from './components/testfiles/testaddproduct2.js';
 import AddProductPage2 from './components/testfiles/testaddproduct2.js';
 import Alreadylogin from './components/alreadylogin/alreadylogin.js';
-
-
+import DashboardWelcome from './components/Dashboardwelcome/Dashboardwelcome.jsx';
+import ComingSoon from './components/ComingSoon/ComingSoon.jsx';
+import AdminCurrenciesExchangeBootstrap from './components/currency/currencycontroller.jsx';
+import Currency from './components/finalcurrency/Currency.jsx';
+import CurrencyAdd from './components/finalcurrency/CurrencyAdd.jsx';
+import ExchangeRates from './components/finalExchange_rate/Exchange_rate.jsx';
+import ExchangeRateAdd from './components/finalExchange_rate/Exchnage_rate_Add.jsx';
+import Supplier from './components/supplier/Suppliers.jsx';
+import TestShipmentInlinePage from './components/supplier/testsup.jsx';
+import TestInlineSectionPage from './components/supplier/testsupplier12.jsx';
+import SupplierManager from './components/supplier/mainsupplier.jsx';
+import AddSupplier from './components/supplier/addsupplier.jsx';
+import A from './components/supplier/928202540.jsx';
+import B from './components/supplier/9282025632.jsx';
+import C from './components/supplier/9282025619test.jsx';
+import D from './components/supplier/9282025649.jsx'
+// import TopCategoriesSection, { TopCategoriesHorizontal } from './components/testfiles/present1581012025.jsx';
+// import ModernCategoryCarousel from './components/testfiles/presentcategory228.jsx';
+// import ModernSingleCategoryCarousel from './components/testfiles/present300.jsx';
+import ModernSingleCategoryCarousel400 from './components/testfiles/present400.jsx';
+import ModernSingleCategoryCarousel400edit from './components/testfiles/present400edit.jsx';
+import SearchLayout from './components/Searchpage/searchlayout.jsx';
+import Cart654 from './components/Cart/654.jsx';
+import Cart110 from './components/Cart/110.jsx';
+import AdminOrdersDashboardWithModal from './components/Order/Order.jsx';
+import AdminOrdersFilter2 from './components/Order/1143.jsx';
+import AdminOrdersFilter21155 from './components/Order/1155.jsx';
+import AdminOrdersFilter21158 from './components/Order/1158.jsx';
+import Cart110Test from './components/Cart/110test.jsx';
+// import ModernCategoryCarouselBootstrap from './components/testfiles/present500.jsx';
 
 
 
@@ -42,9 +77,7 @@ function App() {
         <Route path='/*' element={<Notfound></Notfound>}></Route>
 
         <Route  path="/" element={<MainPage></MainPage>}>
-            
-            <Route path='/test' element={<CartPagetest></CartPagetest>}/>
-            <Route path='/test2' element={<ProductDetail></ProductDetail>}></Route>
+            <Route path="/comingsoon" element={<ComingSoon></ComingSoon>}></Route>
             <Route path="/product/:slug" element={<ProductDetail />} />
             <Route path="/category/*" element={<ProductList/>}/>
             <Route path='/profile' element={<UserProfile></UserProfile>}>
@@ -52,18 +85,24 @@ function App() {
               <Route index element={<Navigate to="info" replace />} />
               
               <Route path="info" element={<Info></Info>}/>
+              <Route element={<ComingSoon></ComingSoon>}>
               <Route path='products' element={<div><NavLink to='New_Products'>new</NavLink><NavLink to='Used_Products'>old</NavLink><Outlet></Outlet></div>}>
                 <Route element={<Premiumandup></Premiumandup>}> 
                     <Route path='New_Products' element={<div>new product</div>}></Route>
                 </Route>  
                 <Route path='Used_Products' element={<div>used product</div>}></Route>
               </Route>
+              <Route path='services' ></Route>
+              <Route path='courses'></Route>
+              </Route>
               
             </Route>
 
             <Route  path='' element={<Defaultpage></Defaultpage>}/>
-            <Route path='cart' element={<CartPage/>}></Route>
-            <Route path='view' element={<ProductList></ProductList>}></Route>
+            <Route path="cart" element={<Cart110Test></Cart110Test>}/>
+            
+            
+            <Route path="search" element={<SearchLayout></SearchLayout>}></Route>
             <Route path='/*' element={<Notfound></Notfound>}/>
             <Route element={<Alreadylogin/>}>
             </Route>
@@ -71,30 +110,32 @@ function App() {
         </Route>
 
         <Route path='/dashboard' element={<NoNeedAuth></NoNeedAuth>}>
-          <Route path='' element={<Layout> <div> adsfasdfsadfasdf</div></Layout>}>
-            <Route index element={<div className='mt-5' style={{ backgroundColor:"white",textAlign:"center",fontSize:"3rem",border:" 4px solid",borderRadius:"33px"}}>welcome to the dashboard</div>}></Route>
-            {/*this where we add the outlet or out look and the route that will apper inside it  */}
-            <Route path='himan' element={<div style={{backgroundColor:"red", overflow:"auto",width:"100%"}}>sdfdsafdsaf</div>}></Route>
-            <Route path='orders'/>
-
-            <Route path='upload' element={<CloudinaryUpload/>}></Route>
-            <Route path='*' element={<Notfound/>}/>
-            <Route path='mainpage' element={<MainPage></MainPage>}>
-            </Route>
-            <Route path='productlayout' element={<ProductList></ProductList>}></Route>
-            <Route path='test1' element ={<div className='m-0 container-fluid p-0'><ModernTable></ModernTable></div>}></Route>
-            <Route path='test2' element ={<div className='m-0 container-fluid p-0'><SlideInDrawerTable></SlideInDrawerTable></div>}></Route>
-            <Route path='test3' element ={<div className='m-0 container-fluid p-0'><ExpandableRowTable></ExpandableRowTable></div>}></Route>
-            <Route path='test4' element ={<div className='m-0 container-fluid p-0'><OpenNewPageApp></OpenNewPageApp></div>}></Route>
-            <Route path="test5" element ={<div className='m-0 container-fluid p-0'><Test5></Test5></div>}></Route>
-            <Route path="test6" element ={<div className='m-0 container-fluid p-0'><Test6></Test6></div>}></Route>
-            <Route path="test7" element ={<div className='m-0 container-fluid p-0'><Test7></Test7></div>}>
-            </Route>
-              <Route path='add_new_product' element ={<AddProductPage></AddProductPage>}></Route>
-            <Route path="add2" element={<AddProductPage2></AddProductPage2>}></Route>
+        
+          <Route path='' element={<Layout></Layout>}>
+            <Route index element={<DashboardWelcome></DashboardWelcome>}></Route>
             
+            <Route path='currency' element={<Currency></Currency>}></Route>
+            <Route path='currency_add' element={<CurrencyAdd></CurrencyAdd>}></Route>
+            <Route path='exchange_rate' element={<ExchangeRates></ExchangeRates>}></Route>
+            <Route path='exchange_rate_add' element={<ExchangeRateAdd></ExchangeRateAdd>}></Route>
+            {/*this where we add the outlet or out look and the route that will apper inside it  */}
+            <Route path='orders' element={<AdminOrdersFilter21158></AdminOrdersFilter21158>}></Route>
+
+            <Route path='*' element={<Notfound/>}/>
+            
+            <Route path='productlayout' element={<ProductList></ProductList>}></Route>
+            <Route path="products_manger" element ={<div className='m-0 container-fluid p-0'><Test7></Test7></div>}></Route>
+            <Route path='latest_products' element={<></>}></Route>
+            <Route path='upcoming_porducts' element={<></>}></Route>
+            <Route path='new_products' element={<></>}></Route>
+            <Route path='discount_product' element={<></>}></Route>
+            <Route path='most_products' element={<></>}></Route>
+            <Route path="new_Product_Adding" element={<AddProductPage2></AddProductPage2>}></Route>
+            
+            <Route path='supplier_shipments_manger' element={<Supplier></Supplier>}> </Route>
+            <Route path='supplier' element ={<SupplierManager></SupplierManager>}></Route>
+            <Route path='addsupplier' element={<AddSupplier></AddSupplier>}></Route>
           </Route>
-        <Route />
 
 
         </Route>

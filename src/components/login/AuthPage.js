@@ -125,7 +125,6 @@ export default function AuthFlip() {
                 
         showNotification("success","لقد سجلت بنجاح")
       } catch (error) {
-        console.log(error)
         if (originalAxios.isCancel(error)|| error.name === 'CanceledError') {
           showNotification("warning","Request canceled");
 

@@ -3,8 +3,8 @@ import OptionSelector from './optionselector';
 const RightOptions = ({onFilterChange,optionFilters,selectedFilters}) => {
   return (
     <div className='b-none '>
-      <h5 className='pb-3' style={{borderBottom:"1px solid black"}}>خيارات التصفية</h5>
-      <OptionSelector />
+      <h5 className='pb-3 text-center shadow-sm rounded' style={{}}>خيارات التصفية</h5>
+      {/* <OptionSelector /> */}
      {optionFilters.map((filter)=>(
       <OptionSelector
       key={filter.title}

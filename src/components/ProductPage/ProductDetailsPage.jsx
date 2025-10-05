@@ -4,87 +4,10 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import './productpage.css'
 import useAuth from "../../Hooks/useAuth";
 import axios from "../../api/fetch";
+import useCart from "../../Hooks/useCart";
+import useNotification from "../../Hooks/useNotification";
+import NodeCategory from "../testfiles/nodeCategories";
 
-const exampleProduct = {
-  uuid: "123e4567-e89b-12d3-a456-426614174000",
-  title: "K8 Wireless Microphone Type-C",
-  slug: "k8-wireless-microphone-type-c",
-  price: 29.99,
-  original_price: 39.99,
-  description: "ميكروفون لاسلكي عالي الجودة متوافق مع أجهزة Type-C. مثالي لتسجيل الصوت، والبث المباشر، ومكالمات الفيديو. يتميز بصوت نقي وواضح مع قدرة على تقليل الضوضاء المحيطة، مما يجعله الخيار الأمثل للمحترفين والهواة على حد سواء. تصميمه المريح وخفة وزنه يتيحان سهولة الاستخدام في مختلف الظروف والأماكن.",
-//   description:
-//     "High-quality wireless microphone compatible with Type-C devices. Ideal for recording, live streaming, and video calls.",
-  metadata: {
-    brand: "K8",
-    model: "K8-TYPEC",
-    connection: "Wireless",
-    connector: "Type-C",
-    battery_life: "8 hours",
-    range: "20 meters",
-    color: "Black",
-    compatiblae_devices: "Android Phones, Tablets, Laptops",
-    compatible_devicfes: "Android Phones, Tablets, Laptops",
-    compatible_edevices: "Android Phones, Tablets, Laptops",
-    compatible_deviceds: "Android Phones, Tablets, Laptops",
-    compatible_devifces: "Android Phones, Tablets, Laptops",
-    compatible_devidces: "Android Phones, Tablets, Laptops",
-    compatibcle_devices: "Android Phones, Tablets, Ladsf asdf asd asdf asdf asf  dasfndsaf asdf adsf dsaflads flkadsjf ;ljasd;lfj lasd;lfasd flkasd ;faptops",
-    compatiable_devsices: "Android Phones, Tablets, Laptops",
-    compatiblae_devices: "Android Phones, Tablets, Laptops",
-
-  },
-  images: [
-    { filename: "https://placehold.co/600x400?text=Main+Image", image_type: "main" },
-    { filename: "https://placehold.co/600x400?text=Side+View", image_type: "gallery" },
-    { filename: "https://placehold.co/600x400?text=box", image_type: "gallery" },
-        { filename: "https://placehold.co/150x150?text=box", image_type: "gallery" },
-
-  ],
-  reviews: [
-  {
-    user: "Ali",
-    comment: "الميكروفون فعلاً فاجأني بجودته. أول ما استلمته، جربته على اللابتوب وعلى الهاتف، والصوت كان نقي جدًا. حتى لما سجلت في مكان فيه ضوضاء، قدر يعزل الخلفية بشكل ممتاز. حقيقي منتج ممتاز بالنسبة للسعر.",
-    rating: 5
-  },
-  {
-    user: "Maya",
-    comment: "بصراحة، بعد أسبوع من الاستخدام، لاحظت فرق كبير في جودة التسجيل مقارنة بالميكروفون السابق اللي كنت أستخدمه. كنت مترددة أطلبه، بس الحمدلله طلع أفضل من التوقعات.",
-    rating: 4
-  },
-  {
-    user: "John",
-    comment: "المنتج جيد لكن عندي بعض الملاحظات. الكيبل شوي قصير بالنسبة لي، وكان يفضل يكون أطول شوي. غير كذا، كل شيء تمام، التوصيل سريع والتغليف محترم.",
-    rating: 3
-  },
-  {
-    user: "Layla",
-    comment: "واو! استخدمته للبودكاست، والصوت طالع احترافي كأنك في ستوديو. فعلاً يستاهل كل ريال. حتى أصدقائي لاحظوا فرق الجودة لما سمعوا التسجيل.",
-    rating: 5
-  },
-  {
-    user: "Sam",
-    comment: "الجودة مقبولة نوعًا ما، لكنها مش الأفضل. في مرات يكون فيه طقطقة خفيفة بالصوت، خصوصًا إذا قربته كثير من الفم. بس مقابل السعر، يفي بالغرض.",
-    rating: 3
-  },
-  {
-    user: "Yasmine",
-    comment: "الميكروفون رائع جدًا، شريته علشان أسجل فيديوهات تعليمية على اليوتيوب، وما خيّب أملي. التسجيل واضح، وسهل الاستخدام. أنصح فيه لأي شخص يبحث عن جودة ممتازة بسعر مناسب.",
-    rating: 5
-  },
-  {
-    user: "Mark",
-    comment: "استخدمته للبث المباشر على التويتش، وكانت التجربة فوق الممتازة. المتابعين علقوا على تحسن الصوت، وهذا أكبر دليل إنه فعلاً أداة احترافية. تصميمه أنيق وخفيف الوزن كمان.",
-    rating: 4
-  },
-  {
-    user: "Rami",
-    comment: "الميكروفون يشتغل تمام، لكن لاحظت إنه يحتاج ضبط دقيق في الإعدادات علشان يعطي أفضل أداء. لو أنت مبتدئ، ممكن تتعب شوي بالبداية. لكنه ممتاز لمن يعرف يتعامل معه.",
-    rating: 4
-  }
-]
-
- 
-};
 
 export default function ProductDetailsPage() {
     const { slug } = useParams();   
@@ -94,6 +17,8 @@ export default function ProductDetailsPage() {
         rating: 5,
         comment: "",
     });
+    const { addToCart} =useCart();
+    const{showNotification}=useNotification();
     const navigate = useNavigate();
     const{auth}=useAuth();
 
@@ -104,19 +29,20 @@ const decreaseQty = () => {
   if (quantity > 1) setQuantity((prev) => prev - 1);
 };
 const handleAddToCart = () => {
+  addToCart(product,quantity||1);
+  showNotification("info","تمت إضافة المنتج إالى السلة")
+  
   // Send product + quantity to your cart context or API
-  console.log("Added to cart:", product.uuid, "Quantity:", quantity);
 };
 const handelquantitychange=(e)=>{
     setQuantity((e.target.value>0?e.target.value:1))
 }
 
 const handleBuyNow =async () => {
-  // أضف المنتج إلى السلة
-   await handleAddToCart();
-  setTimeout(() => {
+  addToCart(product,1);
+  showNotification("info","تمت إضافة المنتج إالى السلة")
     navigate("/cart"); 
-  }, 300); 
+
 };
 
 
@@ -127,6 +53,10 @@ const handleBuyNow =async () => {
       [name]: value,
     }));
   };
+  const handlenewclick=(e)=>{
+    window.scroll(0,0);
+  }
+
   async function fetchProductBySlug(slug) {
   try {
     const res = await axios.post('/product/justgettheproudctbyslug',{slug});
@@ -139,7 +69,6 @@ const handleBuyNow =async () => {
      res.data.product.metadata=metadata;
     return res.data.product;   
   } catch (error) {
-    console.error("Error fetching product:", error);
     throw error;
   }
 }
@@ -150,6 +79,7 @@ useEffect(() => {
   }
   loadProduct();
 }, [slug]);
+
 
   if (!product) return <div>Loading...</div>;
 
@@ -171,11 +101,12 @@ useEffect(() => {
    (<>
   <div className="mb-4">
     <h4 className="text-success d-inline me-3">
-      ${product.price}
+      {product?.price} {product.Currency?.symbol}
     </h4>
+    <span> {` `}</span>
     {product.original_price && (
       <span className="text-danger text-decoration-line-through fs-6">
-        ${product.original_price}
+        {product.original_price} {product.Currency?.symbol}
       </span>
     )}
   </div>
@@ -184,7 +115,7 @@ useEffect(() => {
   :(<>
   <div className="mb-4">
     <h4 className="text-muted d-inline me-3">
-      ${product.price}
+      {product.original_price} {product?.Currency?.symbol} 
     </h4>
   </div>
   </>)}
@@ -286,7 +217,7 @@ useEffect(() => {
     onClick={handleAddToCart}
   >
     <i className="bi bi-cart-plus-fill fs-5 me-2"></i>
-    Add to Cart
+    إضافة إالى السلة
   </button>
 
   {/* زر Buy Now */}
@@ -295,10 +226,33 @@ useEffect(() => {
     onClick={handleBuyNow}
   >
     <i className="bi bi-bag-check-fill fs-5 me-2"></i>
-    Buy Now
+    شراء فوراََ
   </button>
 </div>
+{(product?.isactive_phonenumber && product?.isactive_phonenumber) 
+&&
+<div className="mt-1  shadow-sm p-0 p-sm-4">
+  <h5 className="mb-3 text-primary">معلومات البائع</h5>
 
+  <div className=" p-4 rounded bg-white d-flex flex-wrap gap-5 align-items-center">
+    {/* Seller Name */}
+    <div className="d-flex flex-column flex-sm-row align-items-sm-center gap-2">
+      <span className="text-uppercase bg-light text-muted small" style={{ minWidth: "100px" }}>
+         البائع
+      </span>
+      <span className="fw-semibold fs-6">{product?.User?.username || "غير متوفر"}</span>
+    </div>
+
+    {/* Phone Number */}
+    <div className="d-flex flex-column flex-sm-row align-items-sm-center gap-2">
+      <span className="text-uppercase bg-light text-muted small" style={{ minWidth: "100px" }}>
+        رقم الهاتف
+      </span>
+      <span className="fw-semibold fs-6">{product?.User?.phone_number || "غير متوفر"}</span>
+    </div>
+  </div>
+</div>
+}
 
 </div>
 
@@ -307,7 +261,7 @@ useEffect(() => {
       </div>
 
 
-      <div className="mt-5 p-0 p-sm-4">
+<div className="mt-5 p-0 p-sm-4">
  
 
 <h4 className="mb-3">الوصف</h4>
@@ -341,6 +295,9 @@ useEffect(() => {
 
 
       </div>
+    
+      
+
 
       {/* Reviews */}
       {/* <div className="mt-5">
@@ -390,6 +347,9 @@ useEffect(() => {
             </>)
         }
         </div>
+          {product?.Category && <div className='container-fluid  rounded px-3  mt-4  shadow-sm highlight-box'>
+                              <NodeCategory  onCardClick={handlenewclick} categoryslug={product?.Category?.slug} cardWidth={300}></NodeCategory>
+                          </div>}
 
        {/* Add New Review */}
     {auth ? (<>

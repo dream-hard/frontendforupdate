@@ -4,16 +4,17 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 import './defaultpage.css'
 import useNotification from "../../../Hooks/useNotification";
 import axios from "../../../api/fetch";
-const bannerss = [
-  { id: 1, img: "https://t3.ftcdn.net/jpg/13/37/08/44/240_F_1337084486_wRLMY1JtYtNHoBhgYbHF6wLXMXLvJV86.jpg", title: "تخفيضات كبيرة!", subtitle: "حتى 50% خصم على اللابتوبات" },
-  { id: 2, img: "https://t4.ftcdn.net/jpg/11/77/07/57/240_F_1177075792_WKsRfZEDkRrTGuXq9qMAZE2B5pI2ep2K.jpg", title: "وصل حديثاً", subtitle: "اكتشف أحدث الأجهزة" },
-  { id: 3, img: "https://t3.ftcdn.net/jpg/05/95/80/10/240_F_595801093_y1v9owKmJXfnSef9mzD9SD8pFDRyTTAk.jpg", title: "أدوات الألعاب", subtitle: "أفضل الملحقات للاعبين" },
-  {id:5 ,img:"https://placehold.co/1920x530?text=slidshokkw",subtitle:" hi man go"},
-  {id: 4 , img:"https://images.unsplash.com/photo-1682687982298-c7514a167088?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxfHx8ZW58MHx8fHx8"}
-];
+import ModernSingleCategoryCarousel400edit from "../../testfiles/present400edit";
+import Node1 from "../../testfiles/400node1";
+import Node2 from "../../testfiles/400node2";
+import Node3 from "../../testfiles/400node3";
+import Node4 from "../../testfiles/400node4";
+import SkeletonCard from "../../SkeltonCard/SkeletonCard";
+
 
 export default function Defaultpage() {
   const [page, setPage] = useState(1);
+  const[loadingif,setLoadingif]=useState(true)
       const [limit, setLimit] = useState(10000);
       const [itemsnumber,setItemsnumber]=useState(0);
       const [orderby, setOrderby] = useState("created-desc");
@@ -26,32 +27,71 @@ export default function Defaultpage() {
     }
     const [finalproduct,setFinalproduct]=useState([]);
 
+  const [flags, setFlags] = useState({
+    NewProducts: false,
+    LatestProducts: false,
+    DiscountProducts: false,
+    UpcomingProducts: false,
+    BestCategoriesProducts: false,
+    MyPickUp:false
+  });
+  const flagNames = [
+    "NewProducts",
+    "LatestProducts",
+    "DiscountProducts",
+    "UpcomingProducts",
+    "BestCategoriesProducts",
+    "MyPickUp"
+  ];
 
-    const fetchProducts = async () => {
-    const latestNewSlugs = category && category !== "all" ? [category] : [];
-  
-  const existingSlugs = [];
-  const mergedSlugs = [...existingSlugs, ...latestNewSlugs].filter((v, i, a) => v && a.indexOf(v) === i);
-  
+  const fetchFlag = async (name) => {
     try {
-      const res = await axios.post("/product/filterproducts", {
+      const response = await axios.get(`/json/check/${name}`);
+      // assuming API returns { value: true } or { value: false }
+      setFlags((prev) => ({ ...prev, [name]: response.data.result }));
+    } catch (error) {
+    }
+  };
+  const fetchAllFlags = () => {
+    flagNames.forEach((name) => fetchFlag(name));
+  };
+  
+  const fetchProducts = async () => {
+    setLoadingif(true)
+    const latestNewSlugs = category && category !== "all" ? [category] : [];
+    
+    const existingSlugs = [];
+    const mergedSlugs = [...existingSlugs, ...latestNewSlugs].filter((v, i, a) => v && a.indexOf(v) === i);
+    if(!flags.MyPickUp) return;
+
+    try {
+      const fileName='MyPickUp';
+      const res = await axios.get(`/json/fetch/${fileName}`, {
         page,
         limit,
         orderby,
         slugs:mergedSlugs,
       });
-      setFinalproduct(res.data.products);
-      setPage(res.data.currentPage);
-      setTotalPages(res.data.totalPages);
-      setItemsnumber(res.data.total);
+      setFinalproduct(res.data.data.products);
+      setPage(res.data?.currentPage||1);
+      setTotalPages(res.data?.totalPages||1);
+      setItemsnumber(res.data?.total||0);
     } catch (err) {
+      setFinalproduct([])
+    }finally{
+      setLoadingif(false)
     }
   };
-  useEffect(()=>{
-    fetchProducts();
-    return;
-  },[])
-return(<>
+  
+    useEffect(() => {
+      fetchAllFlags();
+    }, []);
+    useEffect(()=>{
+      fetchProducts();
+      return;
+    },[flags]);
+    
+    return(<>
 {/* 
     <div
       id="bannerCarousel"
@@ -108,19 +148,100 @@ return(<>
             </div>
  */}
 
-                <div className="container-fluid mt-4" style={{backgroundColor:'',maxWidth:"1240px"}}>
-            {/* المنتجات المميزة */}
-            {/* <h4 className=" mb-3 ">منتجات مميزة</h4> */}
-               <div  className=" mt-5 container-fluid py-4">
-<div className="row gy-2 gy-sm-3 gy-md-4 justify-content-start  "   >
-        {finalproduct.map((product, idx) => (
-          <div  className="col-6 col-sm-6 col-md-4 col-lg-3 mt-3 px-1 px-sm-3 px-md-2 px-lg-3" key={idx}>
-            <Link style={{textDecoration:"none"}} to={`/product/${product.slug}`}>
-            <ProductCard product={product} />
-            </Link>
-          </div>
-        ))}
-      </div>
-    </div>
-           </div></>
+          <div className="container-fluid mt-4" style={{backgroundColor:'',maxWidth:"1280px"}}>
+              
+              {flags?.MyPickUp ===undefined ? (
+                <p>جار التحميل ...</p>
+              ):
+              flags?.MyPickUp && loadingif ? (
+              <div  className=" mt-5 container-fluid py-4">
+                  <div className="row gy-2 gy-sm-3 gy-md-4 justify-content-start  "   >
+                        <div className="row m-0 p-0 rounded   shadow-sm py-4 " >
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                              <i class="bi bi-star-fill text-warning fs-4"></i> 
+                              <span class="fw-semibold text-muted fs-4">اخترنا لك بعناية</span> 
+                            </div>       
+                            {Array.from({ length: 6 }).map((_, i) => (
+                                    <div
+                                      className="col-6 col-sm-6 col-md-3 col-lg-3 mt-3"
+                                      key={"skeleton-" + i}
+                                    >
+                                      <SkeletonCard />
+                                    </div>
+                             ))}
+                        </div>
+                   </div>
+                </div>
+                       
+                ):finalproduct?(<>
+
+                                 <div  className=" mt-5 container-fluid py-4">
+                                    <div className="row gy-2 gy-sm-3 gy-md-4 justify-content-start  "   >
+                                      <div className="row m-0 p-0 rounded   shadow-sm py-4 " >
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                          <i class="bi bi-star-fill text-warning fs-4"></i> 
+                                          <span class="fw-semibold text-muted fs-4">اخترنا لك بعناية</span> 
+                                        </div>
+                                        {finalproduct.map((product, idx) => (
+                                        <div  className="col-6 col-sm-6 col-md-4 col-lg-3 mt-3 px-1  px-sm-2  px-md-2 px-lg-3 " key={idx}>
+                                          <Link style={{textDecoration:"none"}} to={`/product/${product.slug}`}>
+                                          <ProductCard product={product} />
+                                          </Link>
+                                        </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                </div>
+                                </>):(<>
+                                not found 
+                                </>)} 
+      
+
+              {flags?.BestCategoriesProducts === undefined ? (
+                <p>Loading...</p>
+              ) : flags.BestCategoriesProducts && (                
+                <div className='container-fluid  rounded px-3 py-4 mt-4  shadow-sm highlight-box'>
+                  <ModernSingleCategoryCarousel400edit cardWidth={300}>
+                  </ModernSingleCategoryCarousel400edit>
+                </div>
+              )}
+
+              {flags?.NewProducts === undefined ? (
+                <p>Loading...</p>
+              ) : flags.NewProducts && (
+              <div className='container-fluid  rounded px-3 py-4 mt-4  shadow-sm highlight-box'>
+                <Node1  cardWidth={300}>
+
+              </Node1>
+            </div>   
+              )}
+              {flags?.DiscountProducts === undefined ? (
+                <p>Loading...</p>
+              ) : flags.DiscountProducts && (
+                <div className='container-fluid  rounded px-3 py-4 mt-4  shadow-sm highlight-box'>
+                  <Node2 cardWidth={300}>
+                  </Node2> 
+               </div>
+              )}
+
+              {flags?.LatestProducts === undefined ? (
+                <p>Loading...</p>
+              ) : flags.LatestProducts && (
+                  <div className='container-fluid  rounded px-3 py-4 mt-4  shadow-sm highlight-box'>
+                    <Node3  cardWidth={300}>
+                    </Node3>
+                  </div>
+              )}
+
+              {flags?.UpcomingProducts === undefined ? (
+                <p>Loading...</p>
+              ) : flags.UpcomingProducts && (
+              <div className='container-fluid  rounded px-3 py-4 mt-4  shadow-sm highlight-box'>
+                    <Node4 cardWidth={300}>
+                  </Node4>     
+                </div>
+              )}  
+        </div>    
+    </>
   );}
+  

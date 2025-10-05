@@ -118,7 +118,6 @@ useEffect(() => {
 try {
   setMetadataObj(product.metadata ? JSON.parse(product.metadata) : {});
 } catch (e) {
-  console.error("Invalid metadata JSON", e);
   setMetadataObj({});
 }
 }, [product]);

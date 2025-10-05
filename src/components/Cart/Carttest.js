@@ -212,10 +212,10 @@
 // }
 
 // src/pages/CartPage.js
-import useCart from "../../Hooks/useCart";
 import { useState, useRef, useEffect } from "react";
 import html2pdf from "html2pdf.js";
 import InvoiceLayout from "../main/InvoiceLayout/InvoiceLayout";
+import useCart from "../../Hooks/useCart";
 
 const customer = {
   name: "أحمد يوسف",
@@ -224,7 +224,7 @@ const customer = {
 };
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity } = useCart();
+  const { cart, removeFromCart, updateQuantity,giveme } = useCart();
 
   // Currency setup
   const mainCurrencies = ["USD", "SYP", "TK"];
@@ -300,7 +300,6 @@ const convertCurrency = (amount, from, to) => {
       setDiscountPercent(10);
     } else {
       setDiscountPercent(0);
-      alert("Invalid code");
     }
   };
 
@@ -314,6 +313,12 @@ const convertCurrency = (amount, from, to) => {
   const discount = (subtotal * discountPercent) / 100;
   const tax = (subtotal - discount) * 0.05;
   const total = subtotal - discount + tax;
+  
+  useEffect(()=>{
+    console.log(cart);
+    giveme();
+    return;
+  },[cart]);
 
   return (
     <div className="container py-4">
@@ -368,9 +373,9 @@ const convertCurrency = (amount, from, to) => {
               const converted = convertCurrency(baseTotal, originalCurrency, selectedCurrency);
               const conv=convertCurrency(item.price,originalCurrency,selectedCurrency)
               return (
-                <div key={item.id} className="d-flex align-items-center mb-3 p-3 border rounded">
+                <div key={item.uuid} className="d-flex align-items-center mb-3 p-3 border rounded">
                   <img
-                    src={item.image || "https://placehold.co/400"}
+                    src={item.Product_images[0].filename || "https://placehold.co/400"}
                     width={80}
                     height={80}
                     alt={item.name}
@@ -380,14 +385,14 @@ const convertCurrency = (amount, from, to) => {
                     <h5 className="mb-1">{item.name}</h5>
                     <p className="mb-1">
                       Original: {item.price} {originalCurrency} <br />
-                      Converted: {conv.toFixed(2)} {selectedCurrency}
+                      Converted: {conv} {selectedCurrency}
                     </p>
 
                     <select
                       className="form-select w-50"
                       value={selectedCurrency}
                       onChange={(e) => {
-                        setItemCurrencies({ ...itemCurrencies, [item.id]: e.target.value });
+                        setItemCurrencies({ ...itemCurrencies, [item.uuid]: e.target.value });
                       }}
                     >
                       {mainCurrencies.map((curr) => (
@@ -400,7 +405,7 @@ const convertCurrency = (amount, from, to) => {
                       min="1"
                       value={item.quantity}
                       className="form-control w-25 mt-2"
-                      onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+                      onChange={(e) => updateQuantity(item.uuid, parseInt(e.target.value))}
                     />
                   </div>
 
@@ -475,7 +480,7 @@ const convertCurrency = (amount, from, to) => {
         </div>
       </div>
 
-      <button className="btn btn-secondary mt-4" onClick={handleDownloadPDF}>
+      {/* <button className="btn btn-secondary mt-4" onClick={handleDownloadPDF}>
         🖨️ طباعة الفاتورة
       </button>
       
@@ -499,8 +504,7 @@ const convertCurrency = (amount, from, to) => {
             currency={currencychoosed}
             cart={items.map(item => ({
              ...item,
-             price : convertCurrency(item.price,item.currency,currencychoosed), // Example modification
-             // Add any other modifications here
+             price : convertCurrency(item.price,item.currency,currencychoosed), 
             }))}    
             subtotal={convertCurrency(subtotal,cuurr,currencychoosed)}
             discount={convertCurrency(discount,cuurr,currencychoosed)}
@@ -511,7 +515,7 @@ const convertCurrency = (amount, from, to) => {
             exchangeRates={exchangeRates}
           />
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }

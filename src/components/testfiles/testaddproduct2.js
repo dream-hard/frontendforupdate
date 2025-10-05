@@ -200,11 +200,11 @@ const handleSubmit = async (e) => {
         <div className="row mb-3">
           <div className="col">
             <label className="form-label">Price</label>
-            <input type="number" className="form-control" min={1}  name="price" step="0.01"    value={formData.price} onChange={handleChange} />
+            <input type="number" className="form-control" min={0}  name="price" step="0.01"    value={formData.price} onChange={handleChange} />
           </div>
           <div className="col">
             <label className="form-label">Original Price</label>
-            <input type="number" className="form-control" min={1} name="original_price" step="0.01"    value={formData.original_price} onChange={handleChange} />
+            <input type="number" className="form-control" min={0} name="original_price" step="0.01"    value={formData.original_price} onChange={handleChange} />
           </div>
         </div>
         <div className="mb-3">

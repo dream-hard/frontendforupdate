@@ -1,48 +1,114 @@
+import React, { useState ,useEffect,useRef} from "react";
+import { Link,NavLink,Outlet } from "react-router-dom";
+import axios,{originalAxios} from '../../api/fetch'
 import "./Profile.css"
 
-
-import React, { useState ,useEffect} from "react";
-import { Link,NavLink,Outlet,useLocation,useNavigate } from "react-router-dom";
-
 const UserProfile = () => {
-  const [activeTab, setActiveTab] = useState("products");
+const [user, setUser] = useState({});
+  const controllerRef = useRef(null);
+  const [loadingStage, setLoadingStage] = useState(true);
+    
+    const fetchUser= async (signal)=>{
+      setLoadingStage(true);
+      try {
 
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-  };
+        const res = await axios.get("/me", {
+          signal
+        });
+        setUser(res.data);
+      } catch (error) {
+        if (originalAxios.isCancel(error)|| error.name === 'CanceledError') {
+          console.log("Request canceled");
+        } else {
+          console.error("Failed to fetch user data:", error);
 
-  const products = [
-    { id: 1, name: "Used Laptop", desc: "Core i5, 8GB RAM", price: 250, image: "https://placehold.co/300x200?text=adsf" },
-    { id: 2, name: "Gaming Mouse", desc: "Logitech G402", price: 35, image: "https://placehold.co/300x100?text=adsffff" },
-  ];
+        }
+      }finally{
+        setLoadingStage(false)
+      }
+    }
+    
 
-  const services = [
-    { id: 1, name: "Logo Design", price: 50 },
-    { id: 2, name: "Website Audit", price: 80 },
-  ];
+  
 
-  const courses = [
-    { id: 1, title: "React for Beginners", lessons: 40, duration: "8h", price: 29 },
-    { id: 2, title: "Node.js Essentials", lessons: 25, duration: "5h", price: 24 },
-  ];
+  useEffect(() => {
+    controllerRef.current = new AbortController();
+
+  const timeoutId = setTimeout(() => {
+    fetchUser(controllerRef.current.signal);
+  }, 300); // ← تأخير 300ms مثلًا
+    return () => {
+          clearTimeout(timeoutId); // 🧹 امسح التايمر لو الكومبوننت اتسكر
+
+      controllerRef.current?.abort();
+    };
+  }, []);
+
 
   return (
-    <div className="container-fluid mt-4">
+    <div className="container-fluid col-12 mt-4">
       {/* Profile Header */}
-      <div className="card mb-4 shadow-sm p-3">
-        <div className="d-flex align-items-center">
+      <div className="  mb-4 shadow-sm px-3">
+         {loadingStage ? (
+            <>
+              {/* Avatar Placeholder */}
+              <div
+                className="rounded-circle bg-secondary placeholder-glow"
+                style={{ width: 80, height: 80 }}
+              ></div>
+              <div className="ms-3 flex-grow-1">
+                <h4 className="placeholder-glow">
+                  <span className="placeholder col-6"></span>
+                </h4>
+                <h6 className="placeholder-glow">
+                  <span className="placeholder col-4"></span>
+                </h6>
+                <small className="placeholder-glow">
+                  <span className="placeholder col-8"></span>
+                </small>
+                <p className="placeholder-glow mt-2 mb-0">
+                  <span className="placeholder col-10"></span>
+                </p>
+              </div>
+            </>
+          ) : (<>
+          {/* <div className="d-flex align-items-center">
           <img
-            src="https://via.placeholder.com/80"
+            src={user.profile_pic || `https://placehold.co/150?text=${user.username}`}
             className="rounded-circle me-3"
             alt="User Avatar"
           />
           <div>
-            <h4 className="mb-0">John Doe</h4>
-            <h6 className="my-1">general user</h6>
-            <small className="text-muted">Member since Jan 2024</small>
-            <p className="mt-2 mb-0">Bio: Passionate about tech, teaching, and freelancing services.</p>
+            <h4 className="mb-0">{user.username}</h4>
+            <h6 className="my-1">{user?.role_id}</h6>
+            <small className="text-muted">حساب من : {new Date(user.createdAt).toLocaleDateString("en-GB")}</small>
+            <p className="mt-2 mb-0">{user.bio || "No bio provided yet."}</p>
           </div>
-        </div>
+        </div> */}
+      <div className="  p-3 mb-3" style={{border:"0px solid transparent"}}>
+  <div className="d-flex align-items-center">
+    <img
+      src={user.profile_pic || `https://placehold.co/150?text=${user.username}`}
+      className="rounded-circle border me-3"
+      alt="User Avatar"
+
+    />
+    <div>
+      <h5 className="mb-1 text-primary fw-bold">{user.username}</h5>
+      <span className="badge bg-secondary">{user?.role_id}</span>
+      <div>
+        <small className="text-muted">
+          حساب من: {new Date(user.createdAt).toLocaleDateString("en-GB")}
+        </small>
+      </div>
+    </div>
+  </div>
+  <p className="mt-3 mb-0 text-muted fst-italic">
+    {user.bio || "No bio provided yet."}
+  </p>
+</div>
+          </>)}
+ 
       </div>
 
       {/* Tabs */}
@@ -64,62 +130,9 @@ const UserProfile = () => {
       {/* Tab Content */}
       <div className="container-fluid" >
         <Outlet></Outlet>
-        {/* {activeTab === "products" && (
-          <div className="row row-cols-1 row-cols-md-3 ">
-            {products.map((item) => (
-              <div className="col" key={item.id}>
-                <div className="card shadow-sm h-100">
-                  <img src={item.image} className="card-img-top" alt={item.name} />
-                  <div className="card-body">
-                    <h5 className="card-title">{item.name}</h5>
-                    <p className="card-text">{item.desc}</p>
-                    <p className="text-success">${item.price}</p>
-                    <Link to={`/edit/product/${item.id}`} className="btn btn-outline-primary btn-sm">Edit</Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {activeTab === "services" && (
-          <ul className="list-group col-12 col-sm-10 col-md-6 ">
-            {services.map((srv) => (
-              <li
-                className="list-group-item d-flex justify-content-between align-items-center"
-                key={srv.id}
-              >
-                {srv.name}
-                <span className="badge bg-primary rounded-pill">${srv.price}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {activeTab === "courses" && (
-          <div className="row row-cols-1 row-cols-md-2 g-4">
-            {courses.map((course) => (
-              <div className="col" key={course.id}>
-                <div className="card shadow-sm h-100">
-                  <div className="card-body">
-                    <h5 className="card-title">{course.title}</h5>
-                    <p className="card-text">
-                      {course.duration} | {course.lessons} Lessons
-                    </p>
-                    <p className="text-success">${course.price}</p>
-                    <Link to={`/edit/course/${course.id}`} className="btn btn-outline-primary btn-sm">
-                      Edit
-                    </Link>
-*                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )} */}
       </div>
 
-      {/* Modal to Add New */}
-      <div className="modal fade" id="addModal" tabIndex="-1" aria-hidden="true">
+      {/* <div className="modal fade" id="addModal" tabIndex="-1" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
@@ -141,7 +154,7 @@ const UserProfile = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

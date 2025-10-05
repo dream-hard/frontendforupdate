@@ -1,0 +1,61 @@
+/* ModernCategoryCarousel styles (mcc-*) */
+.mcc-root { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+.mcc-carousel-wrap { position: relative; }
+.mcc-carousel {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 10px 48px; /* space for arrows */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.mcc-carousel::-webkit-scrollbar { height: 8px; }
+.mcc-card {
+  flex: 0 0 auto;
+  width: 220px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(15,15,15,0.08);
+  overflow: hidden;
+  transition: transform .18s ease, box-shadow .18s ease;
+  cursor: pointer;
+}
+.mcc-card:focus, .mcc-card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(15,15,15,0.12); outline: none; }
+.mcc-image-wrap { position: relative; height: 140px; overflow: hidden; }
+.mcc-image-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mcc-badges { position: absolute; top: 8px; left: 8px; display: flex; gap: 6px; flex-direction: column; }
+.mcc-badge { font-size: 11px; padding: 4px 7px; border-radius: 8px; opacity: .95; }
+.mcc-body { padding: 10px; }
+.mcc-title { font-size: 14px; margin: 0 0 6px 0; min-height: 38px; line-height: 1.15; }
+.mcc-price { font-weight: 700; font-size: 14px; }
+
+/* nav arrows */
+.mcc-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 0;
+  box-shadow: 0 6px 18px rgba(15,15,15,0.08);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  font-size: 20px;
+  line-height: 1;
+}
+.mcc-prev { left: 8px; }
+.mcc-next { right: 8px; }
+.mcc-nav:active { transform: translateY(-50%) scale(.98); }
+
+/* responsive tweaks */
+@media (max-width: 768px) {
+  .mcc-card { width: 170px; }
+  .mcc-image-wrap { height: 110px; }
+  .mcc-carousel { padding: 8px 16px; }
+  .mcc-nav { display: none; } /* rely on swipe on small screens */
+}
