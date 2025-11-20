@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const ProductImageGallery = ({ images }) => {
   const mainImage = images.find((img) => img.image_type === "main") || images[0];
   const [selectedImage, setSelectedImage] = useState(mainImage?.filename);
 
+  useEffect(()=>{
+      let mainimage = images.find((img) => img.image_type === "main") || images[0];
+      setSelectedImage(mainimage?.filename)
+  },[images])
   return (
     <div className="col text-center  mb-4" style={{ maxWidth: "600px", marginRight: "auto" ,marginLeft:"auto"}}>
       {/* Main Image Preview */}
@@ -17,6 +21,12 @@ const ProductImageGallery = ({ images }) => {
           backgroundColor: "#f8f9fa",
         }}
       >
+        {selectedImage?  <img
+          src={selectedImage}
+          alt="Selected"
+          className="img-fluid m-0 p-0 h-100 w-100"
+          style={{ objectFit: "contain" }}
+        /> :<></>}
         <img
           src={selectedImage}
           alt="Selected"

@@ -190,7 +190,7 @@ function onPointerMove(e) {
 
         <div className="d-flex align-items-center gap-3">
             <div className="mt-2">
-              <h5 className="mb-0 ">{group.category.display_name} الأفضل من </h5>
+              <h5 className="mb-0 ">الأفضل من  {group.category.display_name} </h5>
               <small className="text-muted">عرض {group.products.length} منتج</small>
             </div>
         </div>

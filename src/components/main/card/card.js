@@ -3,10 +3,11 @@ import React, { useEffect } from "react";
 import './card.css'
 import { Link } from "react-router-dom";
 import useCart from "../../../Hooks/useCart";
+import useNotification from "../../../Hooks/useNotification";
 
 const ProductCard = ({ product }) => {
     const{addToCart}=useCart();
-
+    const{showNotification}=useNotification();
     const hasDiscount =product.discount;
     const discountPercent = hasDiscount
     ? Math.round(
@@ -58,7 +59,7 @@ const ProductCard = ({ product }) => {
             <div>
               {(product.stock_quantity_fy > 0 && product.stock_quantity_fy<=10)&&
               <span className={`small ${product.stock_quantity_fy > 0 ? "text-success" : "text-danger"}`}>
-              الكمية المتبقية: ${product.stock} 
+              الكمية المتبقية: {product.stock_quantity_fy} 
               </span>}
             </div>
             <div className="m-0 p-0">
@@ -66,7 +67,7 @@ const ProductCard = ({ product }) => {
             </div>
           </div>
           <button style={{ maxHeight: "45px" }} className="btn btn-outline-primary btn-sm rounded-pill" 
-          onClick={(e)=>{e.preventDefault(); addToCart(product,1)}}>
+          onClick={(e)=>{e.preventDefault(); addToCart(product,1); showNotification("info","تمت إضافة المنتج إالى السلة");}}>
             <span 
               className="d-none d-lg-inline d-inline-block text-truncate" 
               style={{fontSize:"80%"}}

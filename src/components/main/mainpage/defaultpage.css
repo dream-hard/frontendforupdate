@@ -31,7 +31,6 @@
 
 }
 
-
 .carousel-image-container {
   width: 100% !important;
   
@@ -55,13 +54,7 @@
 
 
 
-@media (max-width:1200px){
-    .carousel-image-container {
-    height:300px !important;
-      min-height: 300px !important;
-    max-height:300px !important;
-  }
-}
+
 
 @media (max-width: 768px) {
   .carousel-image-container {
@@ -137,4 +130,57 @@
   0% { left: -100%; }
   50% { left: 100%; }
   100% { left: 100%; }
+}
+/* /////// */
+.responsive-banner-img {
+  width: 100%;
+  object-fit: cover;
+}
+
+/* Mobile screens */
+@media (max-width: 576px) {
+  .responsive-banner-img {
+    height: 200px;
+  }
+}
+
+/* Small tablets */
+@media (min-width: 577px) and (max-width: 768px) {
+  .responsive-banner-img {
+    height: 300px;
+  }
+}
+
+/* Tablets and small laptops */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .responsive-banner-img {
+    height: 400px;
+  }
+}
+
+/* Desktops */
+@media (min-width: 1201px) {
+  .responsive-banner-img {
+    height: 400px;
+  }
+}
+
+.banner-image-wrapper {
+  width: 100%;
+  background-color: #000; /* optional - prevents gaps */
+  text-align: center;
+}
+
+.banner-image {
+  width: 100%;
+  height: auto; /* auto height keeps full image visible */
+  object-fit: contain; /* ✅ keeps the full image */
+  display: block;
+}
+
+/* Optional: if you want some padding control on smaller devices */
+@media (max-width: 768px) {
+  .banner-image {
+    max-height: 400px; /* limit height a bit on small devices */
+  }
 }

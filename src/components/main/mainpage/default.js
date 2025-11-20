@@ -11,10 +11,11 @@ import Node3 from "../../testfiles/400node3";
 import Node4 from "../../testfiles/400node4";
 import SkeletonCard from "../../SkeltonCard/SkeletonCard";
 
-
 export default function Defaultpage() {
   const [page, setPage] = useState(1);
-  const[loadingif,setLoadingif]=useState(true)
+  const[loadingif,setLoadingif]=useState(true);
+  const[loadingbanners,setLoadingbanners]=useState(true);
+  const[banners,setBanners]=useState([])
       const [limit, setLimit] = useState(10000);
       const [itemsnumber,setItemsnumber]=useState(0);
       const [orderby, setOrderby] = useState("created-desc");
@@ -82,9 +83,26 @@ export default function Defaultpage() {
       setLoadingif(false)
     }
   };
+  const fetchbanners=async()=>{
+    setLoadingbanners(true);
+    try {
+      const params = { page:1, limit:100, order: 'updated-desc' ,isvalid:"1"};
+
+      const res= await axios.get('/banners/filterAds',{params});
+      setBanners(res.data.ads);
+    } 
+    catch (error) {
+      setBanners([])
+    }
+    finally{
+      setLoadingbanners(false)
+    }
+  }
   
     useEffect(() => {
       fetchAllFlags();
+      fetchbanners();
+      return;
     }, []);
     useEffect(()=>{
       fetchProducts();
@@ -92,14 +110,14 @@ export default function Defaultpage() {
     },[flags]);
     
     return(<>
-{/* 
-    <div
+
+    {/* <div
       id="bannerCarousel"
          className="me-auto ms-auto carousel slide carousel-fade"
         data-bs-ride="carousel"
       data-bs-interval="4000"
       data-bs-pause="false"
-      style={{maxWidth:"1248px"}}
+      style={{maxWidth:"1248px",backgroundColor:"red"}}
 
             >
               <div className="carousel-inner" >
@@ -145,11 +163,244 @@ export default function Defaultpage() {
 </button>
 
 
+            </div> */}
+{/* /////////////////////////////// */}
+            {/* <div
+  id="bannerCarousel"
+  className="carousel slide carousel-fade w-100"
+  data-bs-ride="carousel"
+  data-bs-interval="4000"
+  data-bs-pause="false"
+  style={{ backgroundColor: "red" }}
+>
+  <div className="carousel-inner">
+    {banners.map((banner, idx) => (
+      <div
+        key={banner.id}
+        className={`carousel-item ${idx === 0 ? "active" : ""}`}
+      >
+        <img
+          src={banner.img}
+          className="d-block w-100"
+          alt={banner.title}
+          style={{
+            objectFit: "cover",
+            height: "30vh", // or fixed height like "500px" if you prefer
+          }}
+        />
+        <div className="carousel-caption p-2 p-md-3 bg-dark bg-opacity-50 rounded">
+          <h3 className="fs-6 fs-md-4">{banner.title}</h3>
+          <p className="fs-7 fs-md-6">{banner.subtitle}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <button
+    className="carousel-control-prev"
+    type="button"
+    data-bs-target="#bannerCarousel"
+    data-bs-slide="prev"
+  >
+    <i className="bi bi-chevron-left"></i>
+    <span className="visually-hidden">Previous</span>
+  </button>
+
+  <button
+    className="carousel-control-next"
+    type="button"
+    data-bs-target="#bannerCarousel"
+    data-bs-slide="next"
+  >
+    <i className="bi bi-chevron-right"></i>
+    <span className="visually-hidden">Next</span>
+  </button>
+</div> */}
+{/* /////////////////////////////////// */}
+{/* 
+<div
+  id="bannerCarousel"
+  className="carousel slide carousel-fade w-100"
+  data-bs-ride="carousel"
+  data-bs-interval="4000"
+  data-bs-pause="false"
+>
+  <div className="carousel-inner">
+    {banners.map((banner, idx) => (
+      <div
+        key={banner.id}
+        className={`carousel-item ${idx === 0 ? "active" : ""}`}
+      >
+        <img
+          src={banner.img}
+          className="d-block w-100"
+          alt={banner.title}
+          style={{
+            height: "50vh",       // 👈 change this value as you like
+            objectFit: "cover",     // makes sure the image fills the area nicely
+          }}
+        />
+
+        <div className="carousel-caption p-2 p-md-3 bg-dark bg-opacity-50 rounded">
+          <h3 className="fs-6 fs-md-4">{banner.title}</h3>
+          <p className="fs-7 fs-md-6">{banner.subtitle}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <button
+    className="carousel-control-prev"
+    type="button"
+    data-bs-target="#bannerCarousel"
+    data-bs-slide="prev"
+  >
+    <i className="bi bi-chevron-left"></i>
+    <span className="visually-hidden">Previous</span>
+  </button>
+
+  <button
+    className="carousel-control-next"
+    type="button"
+    data-bs-target="#bannerCarousel"
+    data-bs-slide="next"
+  >
+    <i className="bi bi-chevron-right"></i>
+    <span className="visually-hidden">Next</span>
+  </button>
+</div> */}
+{/* //////////////////////////////// */}
+{/* working now now now now now  */}
+{/* <div
+  id="bannerCarousel"
+  className="carousel slide carousel-fade w-100"
+  data-bs-ride="carousel"
+  data-bs-interval="4000"
+  data-bs-pause="false"
+>
+  <div className="carousel-inner">
+    {banners.map((banner, idx) => (
+      <div
+        key={banner.id}
+        className={`carousel-item ${idx === 0 ? "active" : ""}`}
+      >
+        <img
+          src={banner.img}
+          className="d-block w-100 responsive-banner-img"
+          alt={banner.title}
+        />
+        <div className="carousel-caption p-2 p-md-3 bg-dark bg-opacity-50 rounded">
+          <h3 className="fs-6 fs-md-4">{banner.title}</h3>
+          <p className="fs-7 fs-md-6">{banner.subtitle}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <button
+    className="carousel-control-prev"
+    type="button"
+    data-bs-target="#bannerCarousel"
+    data-bs-slide="prev"
+  >
+    <i className="bi bi-chevron-left"></i>
+    <span className="visually-hidden">Previous</span>
+  </button>
+
+  <button
+    className="carousel-control-next"
+    type="button"
+    data-bs-target="#bannerCarousel"
+    data-bs-slide="next"
+  >
+    <i className="bi bi-chevron-right"></i>
+    <span className="visually-hidden">Next</span>
+  </button>
+</div> */}
+
+{/* now just testing in the moon  */}
+          
+          {loadingbanners?(
+            <>
+            <div
+              className="placeholder placeholder-wave  m-0  w-100"
+              style={{
+                height: "300px",
+              }}
+            >
             </div>
- */}
+            </>)
+            :(<>
+            {banners?.length>0 && 
+            
+          <div
+          id="bannerCarousel"
+          className="carousel slide carousel-fade mx-auto w-100"
+          data-bs-ride="carousel"
+            data-bs-interval="2900"
+            data-bs-pause="true"
+            style={{maxWidth:"1548px"}}
+          >
+            
+            <div className="carousel-inner">
+              {banners.map((banner, idx) => (
+                <a href={banner.link_path}  key={idx} >
+                <div
+                  key={banner.id}
+                  className={`carousel-item ${idx === 0 ? "active" : ""}`}
+                >
+                  <div className="banner-image-wrapper">
+                    <img
+                      src={banner.photo_path}
+                      className="d-block w-100 banner-image"
+                      alt={banner.name}
+                      />
+                  </div>
+                  {(banner.name===""&& !banner.title)?<>
+                  </>:(
+
+                  <div className="d-none d-md-block carousel-caption p-2 p-md-3 bg-dark bg-opacity-50 rounded banner-caption">
+                    {(banner?.name)?(<h3 className="d-none d-md-block fs-6 fs-md-4">{banner.name}</h3>):(<></>)}
+                    {banner?.title?<p className="d-none d-md-block fs-7 fs-md-6">{banner.title}</p>:<></>}
+                  </div>
+            
+
+                  )}
+                </div>
+              </a>
+              ))}
+            </div>
+
+
+            <button
+              className="carousel-control-prev custom-arrow"
+              type="button"
+              data-bs-target="#bannerCarousel"
+              data-bs-slide="prev"
+              >
+              <i className="bi bi-chevron-left"></i>
+              <span className="visually-hidden">Previous</span>
+            </button>
+
+            <button
+              className="carousel-control-next custom-arrow"
+              type="button"
+              data-bs-target="#bannerCarousel"
+              data-bs-slide="next"
+              >
+              <i className="bi bi-chevron-right"></i>
+              <span className="visually-hidden">Next</span>
+            </button>
+          </div>
+          
+            }
+            
+            </>)}
+
+
+
 
           <div className="container-fluid mt-4" style={{backgroundColor:'',maxWidth:"1280px"}}>
-              
               {flags?.MyPickUp ===undefined ? (
                 <p>جار التحميل ...</p>
               ):

@@ -422,6 +422,174 @@ const PayingModal = ({ show, order, onClose, onSaved }) => {
   );
 };
 
+/* ------------------ Delete modal ------------------ */
+const DeleteModel = ({ show, order, onClose, onSaved }) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  
+  if (!show || !order) return null;
+
+  const submit = async () => {
+    setSubmitting(true);
+    try {
+      const res = await axios.delete(`/order/delete/delete?id=${order?.uuid}`);
+      if (res.data?.success || res.status === 200 || res.status === 201) {
+        onSaved && onSaved(null);
+      } else {
+        onSaved && onSaved(null);
+      }
+      onClose && onClose();
+    } catch (err) {
+      console.error(err);
+      onClose && onClose();
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div className="modal-backdrop fade show"></div>
+
+      <div className="modal show d-block" tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content border-0 shadow-lg">
+
+            {/* Header */}
+            <div className="modal-header border-0">
+              <h5 className="modal-title fw-bold">حذف الطلبية</h5>
+              <button type="button" className="btn-close" onClick={onClose} disabled={submitting}></button>
+            </div>
+
+            {/* Body */}
+            <div className="modal-body text-center">
+
+              <div className="text-danger mb-3" style={{ fontSize: "3rem" }}>
+                <i className="bi bi-exclamation-triangle-fill"></i>
+              </div>
+
+              <h5 className="fw-semibold"> هل أنت متأكد ؟</h5>
+              <p className="text-muted mb-3">
+                This action will permanently delete<br />
+                <strong>Order #{order.uuid || order.id}</strong>.
+              </p>
+
+              <div className="input-group mb-3">
+                <span className="input-group-text bg-light text-muted">Order ID</span>
+                <input
+                  type="text"
+                  className="form-control bg-light"
+                  value={order?.uuid || order?.id}
+                  disabled
+                />
+              </div>
+
+              <div className="input-group mb-3">
+                <span className="input-group-text bg-light text-muted">المستخدم </span>
+                <input
+                  type="text"
+                  className="form-control bg-light"
+                  value={order?.User?.username || "—"}
+                  disabled
+                />
+              </div>
+              <div className="input-group mb-3">
+                <span className="input-group-text bg-light text-muted">رقم المستخدم </span>
+                <input
+                  type="text"
+                  className="form-control bg-light"
+                  value={order?.User?.phone_number || "—"}
+                  disabled
+                />
+              </div>
+              <div className="input-group mb-3">
+                <span className="input-group-text bg-light text-muted">تاريخ الطلب :  </span>
+                <input
+                  type="text"
+                  className="form-control bg-light"
+                  value={order?.order_date || "—"}
+                  disabled
+                />
+              </div>
+              <div className="input-group mb-3">
+                <span className="input-group-text bg-light text-muted">ملاحظات الطلب :  </span>
+                <input
+                  type="text"
+                  className="form-control bg-light"
+                  value={order?.note || "—"}
+                  disabled
+                />
+              </div>
+              <div className="input-group mb-3 ">
+                <span className="input-group-text bg-light text-muted"> حالة الطلب : </span>
+                <input
+                  type="text"
+                  className={`form-control ${(order?.Order_statu?.statu==='shipped')?"bg-info text-light":(order?.Order_statu?.statu==="pending")?"bg-warning":(order?.Order_statu?.statu==='cancelled')?"bg-danger text-light":"text-light bg-black"}`}
+                  value={order?.Order_statu?.statu || "—"}
+                  disabled
+                />
+              </div>
+ 
+
+              <div className="input-group mb-3">
+                <span className="input-group-text bg-light text-muted">عملة الطلب </span>
+                <input
+                  type="text"
+                  className="form-control bg-light"
+                  value={order?.total_amount[0]?.currency || "—"}
+                  disabled
+                />
+              </div>
+              <div className="input-group mb-3">
+                <span className="input-group-text bg-light text-muted">مجموع الطلب </span>
+                <input
+                  type="text"
+                  className="form-control bg-light"
+                  value={order?.total_amount[0]?.amount || "—"}
+                  disabled
+                />
+              </div>
+              <div className="alert alert-warning small">
+              هذا الحذف لا يمكن إعادته
+              </div>
+
+            </div>
+
+            {/* Footer */}
+            <div className="modal-footer border-0">
+              <button 
+                type="button" 
+                className="btn btn-outline-secondary" 
+                onClick={onClose} 
+                disabled={submitting}
+              >
+                Cancel
+              </button>
+
+              <button 
+                type="button" 
+                className="btn btn-danger" 
+                onClick={submit} 
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete Permanently"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
 /* ------------------ OrderDetailsModal (unchanged except using parse helpers) ------------------ */
 
 // Small StatusBadge fallback — replace with your own if you have one
@@ -888,6 +1056,7 @@ const AdminOrdersFilter21158 = ({ fetchUrl = "/order/filterorders2" }) => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showChangeModal, setShowChangeModal] = useState(false);
   const [showPayingModal, setShowPayingModal] = useState(false);
+  const[showDeleteModal,setShowDeleteModal]=useState(false);
 
   const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -944,7 +1113,15 @@ const AdminOrdersFilter21158 = ({ fetchUrl = "/order/filterorders2" }) => {
     setShowPayingModal(true);
   };
   const closePaying = () => { setSelectedOrder(null); setShowPayingModal(false); };
-
+  
+  const openDelete=(order)=>{
+    setSelectedOrder(order);
+    setShowDeleteModal(true);
+  };
+  const closeDelete=(order)=>{
+    setSelectedOrder(null);
+    setShowDeleteModal(false);
+  }
   // called when modals finish and request succeeded; we reload the list to reflect changes
   const onModalSaved = (maybeUpdatedOrder) => {
     // prefer re-fetch to be safe with server logic
@@ -1023,6 +1200,9 @@ const AdminOrdersFilter21158 = ({ fetchUrl = "/order/filterorders2" }) => {
                       <button className="btn btn-sm btn-success" onClick={() => openPaying(o)}>الدفع للطلب</button>
 
                       <button className="btn btn-sm btn-outline-primary" onClick={() =>{setSelectedOrder(o); openChangeStatus(o)}}>تغيير الحالة</button>
+
+                      <button className="btn btn-sm btn-danger" onClick={() =>{setSelectedOrder(o); openDelete(o)}}>الحذف نهايئاً</button>
+
                     </div>
                   </div>
                 </div>
@@ -1082,7 +1262,15 @@ const AdminOrdersFilter21158 = ({ fetchUrl = "/order/filterorders2" }) => {
         onClose={closePaying}
         onSaved={onModalSaved}
       />
+    
+    <DeleteModel
+        show={showDeleteModal}
+        order={selectedOrder}
+        onClose={closeDelete}
+        onSaved={onModalSaved}
+    />
     </div>
+
   );
 };
 

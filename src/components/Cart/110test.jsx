@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import axios from "../../api/fetch";
 import useNotification from "../../Hooks/useNotification";
 import useAuth from "../../Hooks/useAuth";
-
+import './cart.css'
 // --- ثوابت خارجية (you can keep, but we'll override with API results)
 
 export default function Cart110Test() {
@@ -79,7 +79,7 @@ async function fetchcurrencies() {
   const [targetCurrency, setTargetCurrency] = useState("USD"); // apply-to-all target
   const [itemCurrencies, setItemCurrencies] = useState({}); // per-item keyed by uuid
   const [currencyTotals, setCurrencyTotals] = useState({}); // built dynamically below
-  const [displayCurrency, setDisplayCurrency] = useState("SYP"); // currency for invoice totals
+  const [displayCurrency, setDisplayCurrency] = useState("USD"); // currency for invoice totals
   const containerRef = useRef(null);
   const [invoiceChunks, setInvoiceChunks] = useState([]);
   const [printCurrency, setPrintCurrency] = useState("SYP");
@@ -134,6 +134,7 @@ async function fetchcurrencies() {
         });
         return rateValue;
       } catch (err) {
+        console.log(err)
         showNotification?.("error", "لا يوجد لهذه العملة مقابل");
         return null;
       } finally {
@@ -162,12 +163,14 @@ async function fetchcurrencies() {
   // --- recalc totals
   const prevTotalsRef = useRef(null);
   useEffect(() => {
+    console.log(cart)
+
     const totals = {};
     currencyKeys.forEach((k) => (totals[k] = 0));
     cart.forEach((item) => {
       if (!item) return;
       const key =item.product_id|| item.uuid || item.id;
-      const from = item.currency || "USD";
+      const from = item.Currency.currency_iso || "USD";
       const to = itemCurrencies[key] || from;
       const baseAmount = Number(item.price || 0) * Number(item.quantity || 0);
       const converted = convertCurrency(baseAmount, from, to);
@@ -197,7 +200,7 @@ async function fetchcurrencies() {
       const key =item.product_id|| item.uuid || item.id;
       if (!key) return;
       updated[key] = targetCurrency;
-      const base = item.currency || "USD";
+      const base = item?.Currency.currency_iso || "USD";
       if (base !== targetCurrency && findRateInState(base, targetCurrency) == null) {
         missingPairs.add(`${base}:${targetCurrency}`);
       }
@@ -224,7 +227,7 @@ async function fetchcurrencies() {
   const subtotal = useMemo(() => {
     return cart.reduce((acc, item) => {
       if (!item) return acc;
-      const from = item.currency || "USD";
+      const from = item?.Currency.currency_iso || "USD";
       const qty = Number(item.quantity) || 0;
       const base = Number(item.cost_per_one || 0) * qty;
       return acc + convertCurrency(base, from, displayCurrency);
@@ -282,7 +285,7 @@ const getCurrencyLabel = (code) => {
   useEffect(() => {
     const missingPairs = new Set();
     cart.forEach((item) => {
-      const base = item.currency || "USD";
+      const base = item?.Currency.currency_iso || "USD";
       const target = displayCurrency;
       if (base !== target && findRateInState(base, target) == null) {
         missingPairs.add(`${base}:${target}`);
@@ -305,8 +308,10 @@ const [checkoutForm, setCheckoutForm] = useState({
   phoneNumber: "",        // required phone
   shipping_address: "",   // name/label or full address
   note: "",
-  currency: displayCurrency || "SYP", // default to selected displayCurrency
+  currency: displayCurrency || "SYP",
+  reqname:"" // default to selected displayCurrency
 });
+const [reqname,SetReqname]=useState(true);
 
 // helper to build products structure expected by backend
 const buildProductsPayload = (cartArr) => {
@@ -316,7 +321,7 @@ const buildProductsPayload = (cartArr) => {
     title: item.title || item.name,
     quantity: Number(item.quantity || 1),
     price: Number(item.price || 0),
-    currency: item.currency || "USD",
+    currency: item.Currency.currency_iso || "USD",
   }));
 };
 
@@ -332,8 +337,9 @@ const closeCheckout = () => {
 };
 
 useEffect(()=>{
-    setCheckoutForm((prev)=>({...prev,phoneNumber:claims.phoneNumber||""}))
-},[claims])
+  if(auth){SetReqname(false)}
+  setCheckoutForm((prev)=>({...prev,phoneNumber:claims.phoneNumber||""}))
+},[claims,auth])
 
 // --- جديد: حالات لعناوين المستخدم
 const [addresses, setAddresses] = useState([]); // { id, label, full_address }
@@ -344,7 +350,7 @@ const [newAddressText, setNewAddressText] = useState("");
 const modalCurrency = checkoutForm.currency || displayCurrency;
 const modalItems = cart.map((item) => {
   const qty = Number(item.quantity || 1);
-  const unitConv = convertCurrency(Number(item.cost_per_one || 0), item.currency || "USD", modalCurrency);
+  const unitConv = convertCurrency(Number(item.cost_per_one || 0), item.Currency.currency_iso || "USD", modalCurrency);
   const totalConv = Number(unitConv) * qty;
   return {
     key: item.product_id||item.uuid || item.id,
@@ -402,6 +408,14 @@ const handleSubmitCheckout = async (e) => {
     showNotification?.("error", "رجاء أدخل رقم هاتف صحيح");
     return;
   }
+  if(!auth && !checkoutForm.reqname&& reqname){
+    showNotification?.("error","يرجى إدخال الاسم للمتابعة");
+    return;
+  }else{
+  if(auth && !checkoutForm.reqname && reqname){    
+    showNotification?.("error","يرجى إدخال الاسم للمتابعة");
+    return}
+  }
 
   setLoadingCheckout(true);
   try {
@@ -414,13 +428,14 @@ const handleSubmitCheckout = async (e) => {
         product_id: item.product_id || item.uuid || null,
         quantity: Number(item.quantity || 1),
         cost_per_one: Number(item.cost_per_one||item.original_cost || 0),
-        currency: item.currency || "USD",
+        currency: item?.Currency.currency_iso ||"USD",
       })),
       note: checkoutForm.note || "",
       currency: checkoutForm.currency || displayCurrency,
       shipping_cost: Number(checkoutForm.shipping_cost || 0),
       subtotal: modalSubtotal,
       total: modalTotal,
+      reqname:checkoutForm.reqname,
     };
     const ORDER_API = "/order/create/placeOrder";
     const res = await axios.post(ORDER_API, body);
@@ -478,12 +493,26 @@ const handleSubmitCheckout = async (e) => {
             </button>
           </div>
 
-          {cart.length === 0 ? (
-            <p>السلة فارغة.</p>
+          {cart.length === 0 ?(
+
+  <div className="empty-cart-container text-center my-5 pt-5 ">
+    <div className="cart-animation position-relative d-inline-block">
+      <div className="floating-circle circle1"></div>
+      <div className="floating-circle circle2"></div>
+      <div className="floating-circle circle3"></div>
+      <i className="bi bi-cart-x cart-icon"></i>
+    </div>
+    <h4 className="text-muted mt-4">سلتك فارغة</h4>
+    <p className="text-secondary">أضف بعض المنتجات واستمتع بالتسوق!</p>
+    <a href='/' className="btn btn-primary mt-3">تسوق الآن</a>
+  </div>
+  // ////////////////22222222222222222
+  
+  
           ) : (
             cart.map((item) => {
               const itemKey =item?.product_id|| item?.uuid || item?.id;
-              const originalCurrency = item?.currency || "USD";
+              const originalCurrency = item?.Currency.currency_iso || "USD";
               const selectedCurrency = itemCurrencies[itemKey] || originalCurrency;
               const baseTotal = Number(item?.cost_per_one || 0) * Number(item?.quantity || 0);
               const converted = convertCurrency(baseTotal, originalCurrency, selectedCurrency);
@@ -618,7 +647,7 @@ const handleSubmitCheckout = async (e) => {
               </strong>
             </div>
 
-            <button className="btn btn-primary w-100 mt-3" onClick={() => openCheckout()}>المتابعة لإتمام الطلب</button>
+            <button disabled={(cart.length>0)? false:true} className="btn btn-primary w-100 mt-3" onClick={() => openCheckout()}>المتابعة لإتمام الطلب</button>
 
             <div className="mt-4">
               <h5>💰 المجموع بعملات :</h5>
@@ -709,7 +738,7 @@ const handleSubmitCheckout = async (e) => {
                                 }
                                 }}
 
-                                onChange={(e) => setCheckoutForm((s) => ({ ...s, phoneNumber: e.target.value }))}
+                                onChange={(e) =>{ setCheckoutForm((s)=>({ ...s, phoneNumber: e.target.value })); if(claims.phoneNumber!==e.target.value){SetReqname(true)}else{SetReqname(false)}}}
                                 placeholder="09XXXXXXXX"
                                 className={`form-control ${
                                 true && ! /^09\d{8}$/.test(checkoutForm.phoneNumber)
@@ -727,12 +756,30 @@ const handleSubmitCheckout = async (e) => {
                                 </span>
                             </div>
 
+                            {reqname ?(      
+                            <div className="m-0 p-0 my-2 input-group">
+                              <span className="input-group-text">
+                                الاسم : 
+                              </span>
+                              <input
+                              type="text"
+                              id="reqname"
+                              name="reqname"
+                              className="form-control"
+                              value={checkoutForm.reqname}
+                              onChange={(e)=>{setCheckoutForm((prev)=>({...prev,reqname:e.target.value}))}}/>
+                            </div>):(
+                              <>
+                              </>)}
+                      
+
                             <label className="form-label small">ملاحظة للطلب</label>
                             <input
                             className="form-control mb-2"
                             value={checkoutForm.note}
                             onChange={(e) => setCheckoutForm((s) => ({ ...s, note: e.target.value }))}
                             />
+
 
                             <label className="form-label small">عملة الطلب</label>
                             <select
@@ -816,7 +863,9 @@ const handleSubmitCheckout = async (e) => {
 
 
                             <div className="d-grid gap-2 mt-2">
-                                <button className="btn btn-primary" onClick={handleSubmitCheckout} disabled={loadingCheckout}>
+                                <button className="btn btn-primary" onClick={()=>{
+                                  handleSubmitCheckout()
+                                  return;}} disabled={loadingCheckout}>
                                     {loadingCheckout ? "جاري الإرسال..." : `تأكيد و إرسال (${cart.length} منتج)`}
                                 </button>
                                 <button className="btn btn-outline-secondary" onClick={closeCheckout} disabled={loadingCheckout}>

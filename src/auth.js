@@ -396,7 +396,7 @@ export const AuthProvider = ({ children }) => {
       async (error) => {
         const originalReq = error?.config;
         // No response (network) -> bubble up or handle offline
-        if (!error?.response || error.code === "ERR_NETWORK") {
+        if ((!error?.response || error.code === "ERR_NETWORK") && error.code!=="ERR_CANCELED") {
             Setauth(null)
           return Promise.reject(error);
         }

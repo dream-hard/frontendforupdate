@@ -66,6 +66,13 @@ import AdminOrdersFilter2 from './components/Order/1143.jsx';
 import AdminOrdersFilter21155 from './components/Order/1155.jsx';
 import AdminOrdersFilter21158 from './components/Order/1158.jsx';
 import Cart110Test from './components/Cart/110test.jsx';
+import AdsAdmin from './components/adding_components/Ads_settings/ads_settings.jsx';
+import MultiJsonAdmin from './components/adding_components/discount_products/discounts_component.jsx';
+import CategoryHybridAdmin from './components/adding_components/Category_admin/Category_admin.jsx';
+import AdsModalAdmin from './components/adding_components/Ads_settings/justtest.jsx';
+import MultiJsonAdmins from './components/adding_components/discount_products/distest.jsx';
+import MultiJsonAdminMerged from './components/adding_components/discount_products/distest.jsx';
+
 // import ModernCategoryCarouselBootstrap from './components/testfiles/present500.jsx';
 
 
@@ -120,21 +127,25 @@ function App() {
             <Route path='exchange_rate_add' element={<ExchangeRateAdd></ExchangeRateAdd>}></Route>
             {/*this where we add the outlet or out look and the route that will apper inside it  */}
             <Route path='orders' element={<AdminOrdersFilter21158></AdminOrdersFilter21158>}></Route>
-
             <Route path='*' element={<Notfound/>}/>
             
             <Route path='productlayout' element={<ProductList></ProductList>}></Route>
             <Route path="products_manger" element ={<div className='m-0 container-fluid p-0'><Test7></Test7></div>}></Route>
-            <Route path='latest_products' element={<></>}></Route>
-            <Route path='upcoming_porducts' element={<></>}></Route>
-            <Route path='new_products' element={<></>}></Route>
-            <Route path='discount_product' element={<></>}></Route>
-            <Route path='most_products' element={<></>}></Route>
+
+            <Route path='dropin_product_settings' element={<MultiJsonAdminMerged/>}></Route>
+
             <Route path="new_Product_Adding" element={<AddProductPage2></AddProductPage2>}></Route>
-            
             <Route path='supplier_shipments_manger' element={<Supplier></Supplier>}> </Route>
             <Route path='supplier' element ={<SupplierManager></SupplierManager>}></Route>
             <Route path='addsupplier' element={<AddSupplier></AddSupplier>}></Route>
+            
+            <Route path="ADS_Settings" element={<AdsModalAdmin/>}/>
+            
+
+            <Route path="USERS_Settings" element={<></>}/>
+            <Route path="CODES_Settings" element={<></>}/>
+            <Route path="category_Settings" element={<CategoryHybridAdmin/>}/>
+
           </Route>
 
 

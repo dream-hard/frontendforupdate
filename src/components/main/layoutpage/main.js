@@ -461,15 +461,15 @@ export default function MainPage() {
 
                     {/* optionally: WhatsApp as a pill */}
                     <a
-                      href="/"
-                      className="btn btn-success btn-sm rounded-pill ms-2 d-none d-sm-inline-flex align-items-center"
+                      href={`https://wa.me/963956330906`}
+                      className="btn btn-success btn-sm rounded-pill ms-2  d-sm-inline-flex align-items-center"
                       style={{ paddingLeft: 12, paddingRight: 12, fontWeight: 600 }}
                       aria-label="WhatsApp"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       <i className="bi bi-whatsapp me-2" />
-                      تواصل
+                      تواصل معنا
                     </a>
                   </div>
             </div>

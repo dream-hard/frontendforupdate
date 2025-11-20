@@ -48,6 +48,7 @@ const ProductList = () => {
       orderby:orderbyoption,
       ...filters,
       slugs:[slug], 
+      includedeletedcategory:false
     });
     setProducts(res.data.products || []);
     setPage(res.data.currentPage || 1);

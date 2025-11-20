@@ -88,7 +88,7 @@ export default function SearchResultsPage() {
   };
 
   return (
-    <div className="container py-4">
+    <div className="container-fluid py-4" style={{backgroundColor:'',maxWidth:"1280px"}}>
       {/* Search bar + mobile sidebar toggle */}
       {/* Layout: main + sidebar (sidebar on the side for >= lg) */}
       <div className="row pb-3 g-4" >
@@ -233,7 +233,7 @@ export default function SearchResultsPage() {
                     // 3. Show products
                     searchresults.map((product, idx) => (
                       <div
-                        className="col-6 col-sm-6 col-md-4 col-lg-4 mt-3 p-0 "
+                        className="col-6 col-sm-6 col-md-4 col-lg-4 mt-3 p-0 px-1  px-sm-2  px-md-2 px-lg-2  "
                         key={idx}
                       >
                         <Link
